@@ -1,0 +1,97 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="@dimen/activity_padding">
+
+    <ListView
+        android:id="@+id/lv_compress_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
+
+    <EditText
+        android:id="@+id/et_co_destination"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/lv_compress_file"
+        android:layout_toLeftOf="@+id/bt_co_destination"
+        android:ems="10"
+        android:hint="@string/achieve_output_path"
+        android:textColorHint="@android:color/darker_gray"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/bt_co_destination"
+        android:layout_width="@dimen/item_height"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/lv_compress_file"
+        android:textColor="@color/black"
+        android:text="@string/choose_more" />
+
+    <EditText
+        android:id="@+id/et_co_name"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/et_co_destination"
+        android:layout_toLeftOf="@+id/sp_co_type"
+        android:ems="10"
+        android:hint="@string/achieve_name"
+        android:textColorHint="@android:color/darker_gray"
+        android:singleLine="true" />
+
+    <Spinner
+        android:id="@+id/sp_co_type"
+        android:layout_width="120dp"
+        android:layout_height="@dimen/item_height"
+        android:layout_below="@+id/et_co_destination"
+        android:layout_alignParentRight="true"
+        android:entries="@array/array_compress_type" />
+
+    <CheckBox
+        android:id="@+id/cb_co_passwd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/et_co_name"
+        android:checked="false"
+        android:textColor="@color/black"
+        android:text="@string/password" />
+
+    <CheckBox
+        android:id="@+id/co_passwd_visible"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/et_co_name"
+        android:text="@string/show_password"
+        android:textColor="@color/black"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/et_co_passwd"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/cb_co_passwd"
+        android:ems="10"
+        android:hint="@string/input_password"
+        android:textColorHint="@android:color/darker_gray"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_co_compress"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/et_co_passwd"
+        android:textColor="@color/black"
+        android:text="@string/compress" />
+</RelativeLayout>

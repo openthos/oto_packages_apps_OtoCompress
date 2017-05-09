@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">压缩解压缩</string>
+    <string name="compress">压缩</string>
+    <string name="decompress">解压缩</string>
+    <string name="msg_ret_success">成功</string>
+    <string name="msg_ret_warning">警告</string>
+    <string name="msg_ret_fault">失败</string>
+    <string name="msg_ret_command">命令错误</string>
+    <string name="msg_ret_memmory">空间不足</string>
+    <string name="msg_ret_user_stop">用户停止操作</string>
+    <string name="achieve_output_path">压缩到</string>
+    <string name="choose_more">更多</string>
+    <string name="achieve_name">压缩文件名</string>
+    <string name="password">密码</string>
+    <string name="show_password">显示密码</string>
+    <string name="input_password">请输入密码</string>
+    <string name="decompress_output_path">解压到</string>
+    <string name="decompress_file_name">解压文件</string>
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="parent_folder">上一级</string>
+</resources>

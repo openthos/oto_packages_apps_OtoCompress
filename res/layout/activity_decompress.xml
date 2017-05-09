@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="@dimen/activity_padding">
+
+    <TextView
+        android:id="@+id/tv_decompress_file"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:text="@string/decompress_file_name"
+        android:textColor="@color/black"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dp"/>
+
+    <EditText
+        android:id="@+id/et_de_destination"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_decompress_file"
+        android:layout_toLeftOf="@+id/bt_de_destination"
+        android:hint="@string/decompress_output_path"
+        android:textColorHint="@android:color/darker_gray"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/bt_de_destination"
+        android:layout_width="@dimen/item_height"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_decompress_file"
+        android:text="@string/choose_more" />
+
+    <CheckBox
+        android:id="@+id/cb_de_password"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/et_de_destination"
+        android:checked="false"
+        android:textColor="@color/black"
+        android:text="@string/password" />
+
+    <CheckBox
+        android:id="@+id/de_password_visible"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_below="@+id/et_de_destination"
+        android:layout_alignParentRight="true"
+        android:text="@string/show_password"
+        android:textColor="@color/black"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/et_de_password"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/cb_de_password"
+        android:ems="10"
+        android:hint="@string/input_password"
+        android:textColorHint="@android:color/darker_gray"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/bt_decompress"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/et_de_password"
+        android:textColor="@color/black"
+        android:text="@string/decompress" />
+</RelativeLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OtoCompress</string>
+    <string name="compress">Compress</string>
+    <string name="decompress">Decompress</string>
+    <string name="msg_ret_success">Success</string>
+    <string name="msg_ret_warning">Warning (Non fatal error(s))</string>
+    <string name="msg_ret_fault">Fatal error</string>
+    <string name="msg_ret_command">Command line error</string>
+    <string name="msg_ret_memmory">Not enough memory for operation</string>
+    <string name="msg_ret_user_stop">User stopped the process</string>
+    <string name="achieve_output_path">Achieve output path</string>
+    <string name="choose_more">More</string>
+    <string name="achieve_name">Achieve name</string>
+    <string name="password">Password</string>
+    <string name="show_password">Show Password</string>
+    <string name="input_password">Input password</string>
+    <string name="decompress_output_path">Decompress output path</string>
+    <string name="decompress_file_name">Decompress file name</string>
+    <string name="confirm">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="parent_folder">Parent folder</string>
+
+    <string-array name="array_compress_type">
+        <item>zip</item>
+        <item>7z</item>
+        <item>tar</item>
+        <item>tar.gz</item>
+        <item>tar.bz2</item>
+    </string-array>
+
+</resources>
