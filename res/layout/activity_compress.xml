@@ -4,18 +4,39 @@
     android:background="@color/white"
     android:padding="@dimen/activity_padding">
 
+    <TextView
+        android:id="@+id/tv_compress_file"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:textColor="@color/black"
+        android:text="@string/source_file"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="10dp"/>
+
     <ListView
         android:id="@+id/lv_compress_file"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true" />
+        android:layout_below="@id/tv_compress_file"
+        android:layout_marginLeft="10dp"/>
+
+    <TextView
+        android:id="@+id/tv_co_destination"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:textColor="@color/black"
+        android:text="@string/achieve_output_path"
+        android:gravity="center_vertical"
+        android:layout_below="@+id/lv_compress_file"
+        android:layout_marginLeft="10dp"/>
 
     <EditText
         android:id="@+id/et_co_destination"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/item_height"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/lv_compress_file"
+        android:layout_below="@+id/tv_co_destination"
         android:layout_toLeftOf="@+id/bt_co_destination"
         android:ems="10"
         android:hint="@string/achieve_output_path"
@@ -24,19 +45,29 @@
 
     <Button
         android:id="@+id/bt_co_destination"
-        android:layout_width="@dimen/item_height"
+        android:layout_width="120dp"
         android:layout_height="@dimen/item_height"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/lv_compress_file"
+        android:layout_below="@+id/tv_co_destination"
         android:textColor="@color/black"
         android:text="@string/choose_more" />
+
+    <TextView
+        android:id="@+id/tv_co_name"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:textColor="@color/black"
+        android:text="@string/achieve_name"
+        android:gravity="center_vertical"
+        android:layout_below="@+id/et_co_destination"
+        android:layout_marginLeft="10dp"/>
 
     <EditText
         android:id="@+id/et_co_name"
         android:layout_width="match_parent"
         android:layout_height="@dimen/item_height"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/et_co_destination"
+        android:layout_below="@+id/tv_co_name"
         android:layout_toLeftOf="@+id/sp_co_type"
         android:ems="10"
         android:hint="@string/achieve_name"
@@ -47,7 +78,7 @@
         android:id="@+id/sp_co_type"
         android:layout_width="120dp"
         android:layout_height="@dimen/item_height"
-        android:layout_below="@+id/et_co_destination"
+        android:layout_below="@+id/tv_co_name"
         android:layout_alignParentRight="true"
         android:entries="@array/array_compress_type" />
 

@@ -122,9 +122,12 @@ public class CompressActivity extends Activity {
                 sbCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
             }
         }
-        new CompressUtils(CompressActivity.this, sbCmd.toString(),
-                          mIsSpecialType ? cmd.toString() : null).start();
-        finish();
+        CompressUtils utils = new CompressUtils(CompressActivity.this, sbCmd.toString(),
+                          mIsSpecialType ? cmd.toString() : null);
+        if (utils.checkPath(CompressActivity.this, mEtDestination.getText().toString())
+            && utils.checkFileName(CompressActivity.this, mEtFileName.getText().toString())) {
+            utils.start();
+        }
     }
 
     @Override

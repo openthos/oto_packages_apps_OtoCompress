@@ -21,4 +21,12 @@
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="parent_folder">上一级</string>
+
+    <string name="source_file">源文件</string>
+    <string name="path_not_exist">路径不存在</string>
+    <string name="path_not_directory">路径不是文件夹</string>
+    <string name="path_not_permission">路径无写权限</string>
+    <string name="file_name_illegal">文件名含有非法字符 /</string>
+    <string name="file_name_not_null">文件名不能为空。</string>
+    <string name="file_name_warning">提示：\n请避免文件名含有以下字符：@ # $ ^ &amp; * ( ) [ ].</string>
 </resources>

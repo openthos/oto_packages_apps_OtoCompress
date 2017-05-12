@@ -5,12 +5,32 @@
     android:padding="@dimen/activity_padding">
 
     <TextView
+        android:id="@+id/tv_de_file"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:text="@string/source_file"
+        android:textColor="@color/black"
+        android:gravity="center_vertical"
+        android:layout_marginLeft="10dp"/>
+
+    <TextView
         android:id="@+id/tv_decompress_file"
         android:layout_width="match_parent"
         android:layout_height="@dimen/item_height"
-        android:text="@string/decompress_file_name"
+        android:text="@string/source_file"
         android:textColor="@color/black"
         android:gravity="center_vertical"
+        android:layout_below="@id/tv_de_file"
+        android:layout_marginLeft="10dp"/>
+
+    <TextView
+        android:id="@+id/tv_de_destination"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/item_height"
+        android:textColor="@color/black"
+        android:text="@string/decompress_output_path"
+        android:gravity="center_vertical"
+        android:layout_below="@id/tv_decompress_file"
         android:layout_marginLeft="10dp"/>
 
     <EditText
@@ -18,7 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/item_height"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/tv_decompress_file"
+        android:layout_below="@+id/tv_de_destination"
         android:layout_toLeftOf="@+id/bt_de_destination"
         android:hint="@string/decompress_output_path"
         android:textColorHint="@android:color/darker_gray"
@@ -26,10 +46,10 @@
 
     <Button
         android:id="@+id/bt_de_destination"
-        android:layout_width="@dimen/item_height"
+        android:layout_width="120dp"
         android:layout_height="@dimen/item_height"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/tv_decompress_file"
+        android:layout_below="@+id/tv_de_destination"
         android:text="@string/choose_more" />
 
     <CheckBox

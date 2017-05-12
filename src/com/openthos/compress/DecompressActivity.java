@@ -79,9 +79,11 @@ public class DecompressActivity extends Activity {
         if (mIsSpecialType) {
             cmd.append("-aoa ");
         }
-        new CompressUtils(DecompressActivity.this, sbCmd.toString(),
-                          mIsSpecialType ? cmd.toString() : null).start();
-        finish();
+        CompressUtils utils = new CompressUtils(DecompressActivity.this, sbCmd.toString(),
+                          mIsSpecialType ? cmd.toString() : null);
+        if (utils.checkPath(DecompressActivity.this, mEtDestination.getText().toString())) {
+            utils.start();
+        }
     }
 
     private void startFileChooser(int filter, int requestCode) {

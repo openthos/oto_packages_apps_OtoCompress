@@ -3,10 +3,16 @@ package com.openthos.compress.utils;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.widget.Toast;
 
+import com.openthos.compress.CompressActivity;
+import com.openthos.compress.DecompressActivity;
 import com.openthos.compress.R;
 import com.hu.p7zip.ZipUtils;
+
+import java.io.File;
+import java.util.regex.Pattern;
 
 public class CompressUtils {
 
@@ -21,6 +27,11 @@ public class CompressUtils {
     public static final int REQUEST_CODE_DST = 1;
     public static final int TAR_GZ_POSITION = 3;
     public static final int TAR_BZ2_POSITION = 4;
+
+    private static final int FILE_NAME_LEGAL = 13;
+    private static final int FILE_NAME_NULL = 14;
+    private static final int FILE_NAME_ILLEGAL = 15;
+    private static final int FILE_NAME_WARNING = 16;
 
     private Context mContext;
     private Thread mThread;
@@ -59,7 +70,14 @@ public class CompressUtils {
                     default:
                         break;
                 }
-                Toast.makeText(CompressUtils.this.mContext, retMsgId, Toast.LENGTH_SHORT).show();
+                toast(CompressUtils.this.mContext, mContext.getString(retMsgId));
+                if (msg.what == RET_SUCCESS || msg.what == RET_WARNING) {
+                    if (mContext instanceof CompressActivity) {
+                        ((CompressActivity) mContext).finish();
+                    } else {
+                        ((DecompressActivity) mContext).finish();
+                    }
+                }
                 return false;
             }
         });
@@ -80,5 +98,55 @@ public class CompressUtils {
 
     public void start() {
         mThread.start();
+    }
+
+    public boolean checkPath(Context context, String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            toast(context, context.getString(R.string.path_not_exist));
+            return false;
+        }
+        if (!file.isDirectory()) {
+            toast(context, context.getString(R.string.path_not_directory));
+            return false;
+        }
+        if (!file.canWrite()) {
+            toast(context, context.getString(R.string.path_not_permission));
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkFileName(Context context, String name) {
+        switch (isValidFileName(name)) {
+            case FILE_NAME_NULL:
+                toast(context, context.getString(R.string.file_name_not_null));
+                return false;
+            case FILE_NAME_ILLEGAL:
+                toast(context, context.getString(R.string.file_name_illegal));
+                return false;
+            case FILE_NAME_WARNING:
+                toast(context, context.getString(R.string.file_name_warning));
+                return true;
+        }
+        return true;
+    }
+
+    public void toast(Context context, String text) {
+        Toast.makeText(context, "" + text, Toast.LENGTH_SHORT).show();
+    }
+
+    public int isValidFileName(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return FILE_NAME_NULL;
+        } else {
+            if (fileName.indexOf("/") != -1) {
+                return FILE_NAME_ILLEGAL;
+            }
+            if (!Pattern.compile("[^@#\\$\\^&*\\(\\)\\[\\]]*").matcher(fileName).matches()) {
+                return FILE_NAME_WARNING;
+            }
+            return FILE_NAME_LEGAL;
+        }
     }
 }
