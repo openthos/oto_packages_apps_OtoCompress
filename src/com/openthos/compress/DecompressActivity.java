@@ -55,35 +55,33 @@ public class DecompressActivity extends Activity {
     }
 
     private void extractProcess() {
-        StringBuilder sbCmd = new StringBuilder("7z x ");
-        StringBuilder cmd = new StringBuilder("7z x ");
-        sbCmd.append("'" + mDeFileName + "' ");
+        StringBuilder simpleCmd = new StringBuilder("7z x ");
+        StringBuilder complexCmd = new StringBuilder("7z x ");
+        simpleCmd.append("'" + mDeFileName + "' ");
         if (mDeFileName.endsWith(".tar.gz") || mDeFileName.endsWith("tar.bz2")) {
             mDeFileName = mEtDestination.getText().toString()
                + mDeFileName.substring(mDeFileName.lastIndexOf("/"), mDeFileName.lastIndexOf("."));
-            cmd.append("'" + mDeFileName + "' ");
+            complexCmd.append("'" + mDeFileName + "' ");
             mIsSpecialType = true;
         } else {
-            cmd = null;
+            complexCmd = null;
             mIsSpecialType = false;
         }
 
         if (mIsPassword) {
-            sbCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
+            simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
-        sbCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
+        simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
         if (mIsSpecialType) {
-            cmd.append("'-o" + mEtDestination.getText().toString() + "' ");
+            complexCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
         }
-        sbCmd.append("-aoa ");
+        simpleCmd.append("-aoa ");
         if (mIsSpecialType) {
-            cmd.append("-aoa ");
+            complexCmd.append("-aoa ");
         }
-        CompressUtils utils = new CompressUtils(DecompressActivity.this, sbCmd.toString(),
-                          mIsSpecialType ? cmd.toString() : null);
-        if (utils.checkPath(DecompressActivity.this, mEtDestination.getText().toString())) {
-            utils.start();
-        }
+        CompressUtils utils = new CompressUtils(this, simpleCmd.toString(),
+                 mIsSpecialType ? complexCmd.toString() : null);
+        utils.start();
     }
 
     private void startFileChooser(int filter, int requestCode) {

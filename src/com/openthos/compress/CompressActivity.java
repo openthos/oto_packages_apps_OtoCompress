@@ -40,7 +40,7 @@ public class CompressActivity extends Activity {
 
     private String[] mFileTypes;
     private boolean mIsPassword;
-    private boolean mIsSpecialType;
+    private boolean mIsDefaultType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +102,11 @@ public class CompressActivity extends Activity {
                 + mEtFileName.getText() + "." + mFileTypes[mSpType.getSelectedItemPosition()]
                 + "' " + "'" + mEtDestination.getText() + File.separator
                 + mEtFileName.getText() + ".tar" + "' ");
-            mIsSpecialType = true;
+            mIsDefaultType = true;
         } else {
             sbCmd.append("-t" + mFileTypes[mSpType.getSelectedItemPosition()] + " ");
             cmd = null;
-            mIsSpecialType = false;
+            mIsDefaultType = false;
         }
         sbCmd.append("'" + mEtDestination.getText() + File.separator +
                      mEtFileName.getText() + "' ");
@@ -116,18 +116,15 @@ public class CompressActivity extends Activity {
         }
         sbCmd.append(mCompressList.get(mCompressList.size() - 1) + "' ");
         if (mIsPassword) {
-            if (mIsSpecialType) {
+            if (mIsDefaultType) {
                 cmd.append("'-p" + mEtPassword.getText().toString() + "' ");
             } else {
                 sbCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
             }
         }
-        CompressUtils utils = new CompressUtils(CompressActivity.this, sbCmd.toString(),
-                          mIsSpecialType ? cmd.toString() : null);
-        if (utils.checkPath(CompressActivity.this, mEtDestination.getText().toString())
-            && utils.checkFileName(CompressActivity.this, mEtFileName.getText().toString())) {
-            utils.start();
-        }
+        CompressUtils utils = new CompressUtils(this, sbCmd.toString(),
+                 mIsDefaultType ? cmd.toString() : null);
+        utils.checkFileName(mEtFileName.getText().toString());
     }
 
     @Override

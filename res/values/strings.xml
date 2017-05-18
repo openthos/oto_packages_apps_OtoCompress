@@ -27,7 +27,8 @@
     <string name="path_not_permission">Path has no write permission.</string>
     <string name="file_name_not_null">File name must not be null.</string>
     <string name="file_name_illegal">File name has illegal character /</string>
-    <string name="file_name_warning">Warning:\nAvoid containing these chractors: @ # $ ^ &amp; * ( ) [ ].</string>
+    <string name="file_name_warning">Warning:\nAvoid containing these chractors: @ # $ ^ &amp; * ( ) [ ].\nDo you determine use this file name?</string>
+    <string name="compress_info">Do in progress...</string>
 
     <string-array name="array_compress_type">
         <item>zip</item>

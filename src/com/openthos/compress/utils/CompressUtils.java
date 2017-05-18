@@ -1,6 +1,8 @@
 package com.openthos.compress.utils;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -38,11 +40,15 @@ public class CompressUtils {
     private Handler mHandler;
     private String mCommand;
     private String mCommandTar;
+    boolean mIsOk = true;
+    private ProgressInfoDialog mDialog;
 
     public CompressUtils(Context context, String command, String commandTar) {
         mContext = context;
         mCommand = command;
         mCommandTar = commandTar;
+        mDialog = ProgressInfoDialog.getInstance(context);
+        mDialog.setCancelable(false);
 
         mHandler = new Handler(new Handler.Callback() {
             @Override
@@ -70,7 +76,7 @@ public class CompressUtils {
                     default:
                         break;
                 }
-                toast(CompressUtils.this.mContext, mContext.getString(retMsgId));
+                toast(mContext.getString(retMsgId));
                 if (msg.what == RET_SUCCESS || msg.what == RET_WARNING) {
                     if (mContext instanceof CompressActivity) {
                         ((CompressActivity) mContext).finish();
@@ -90,6 +96,7 @@ public class CompressUtils {
                 if ((ret == RET_SUCCESS || ret == RET_WARNING) && mCommandTar != null) {
                     ret = ZipUtils.executeCommand(CompressUtils.this.mCommandTar);
                 }
+                mDialog.cancel();
                 mHandler.sendEmptyMessage(ret);
                 super.run();
             }
@@ -98,42 +105,57 @@ public class CompressUtils {
 
     public void start() {
         mThread.start();
+        mDialog.showDialog(R.raw.compress);
+        if (mContext instanceof DecompressActivity) {
+            mDialog.showDialog(R.raw.decompress);
+        }
+        mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
     }
 
-    public boolean checkPath(Context context, String path) {
+    /*public boolean checkPath(String path) {
         File file = new File(path);
         if (!file.exists()) {
-            toast(context, context.getString(R.string.path_not_exist));
+            toast(mContext.getString(R.string.path_not_exist));
             return false;
         }
         if (!file.isDirectory()) {
-            toast(context, context.getString(R.string.path_not_directory));
+            toast(mContext.getString(R.string.path_not_directory));
             return false;
         }
         if (!file.canWrite()) {
-            toast(context, context.getString(R.string.path_not_permission));
+            toast(mContext.getString(R.string.path_not_permission));
             return false;
         }
         return true;
-    }
+    }*/
 
-    public boolean checkFileName(Context context, String name) {
+    public void checkFileName(String name) {
+        boolean isOk = true;
         switch (isValidFileName(name)) {
             case FILE_NAME_NULL:
-                toast(context, context.getString(R.string.file_name_not_null));
-                return false;
+                toast(mContext.getString(R.string.file_name_not_null));
+                return;
             case FILE_NAME_ILLEGAL:
-                toast(context, context.getString(R.string.file_name_illegal));
-                return false;
+                toast(mContext.getString(R.string.file_name_illegal));
+                return;
             case FILE_NAME_WARNING:
-                toast(context, context.getString(R.string.file_name_warning));
-                return true;
+                isOk = false;
+                DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        start();
+                    }
+                };
+                showChooseAlertDialog(R.string.file_name_warning, ok, null);
         }
-        return true;
+        if (isOk) {
+            start();
+        }
     }
 
-    public void toast(Context context, String text) {
-        Toast.makeText(context, "" + text, Toast.LENGTH_SHORT).show();
+    public void toast(String text) {
+        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
     }
 
     public int isValidFileName(String fileName) {
@@ -148,5 +170,15 @@ public class CompressUtils {
             }
             return FILE_NAME_LEGAL;
         }
+    }
+
+    public void showChooseAlertDialog(int messageId,
+                       DialogInterface.OnClickListener ok, DialogInterface.OnClickListener cancel) {
+        AlertDialog dialog = new AlertDialog.Builder(mContext)
+                .setMessage(mContext.getResources().getString(messageId))
+                .setPositiveButton(mContext.getResources().getString(R.string.confirm), ok)
+                .setNegativeButton(mContext.getResources().getString(R.string.cancel), cancel)
+                .create();
+        dialog.show();
     }
 }
