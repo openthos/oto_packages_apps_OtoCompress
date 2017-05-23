@@ -26,7 +26,7 @@ import java.util.List;
 public class CompressActivity extends Activity {
 
     private static final int LIMIT_FILES_NUM = 5;
-    private static final int LIMIT_FILES_HEIGHT = 300;
+    private static final int LIMIT_FILES_HEIGHT = 250;
     private ListView mListView;
     private EditText mEtDestination, mEtFileName, mEtPassword;
     private Button mBtDestination, mBtCompress;
@@ -40,7 +40,6 @@ public class CompressActivity extends Activity {
 
     private String[] mFileTypes;
     private boolean mIsPassword;
-    private boolean mIsDefaultType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,6 @@ public class CompressActivity extends Activity {
         mCbPassword = (CheckBox) findViewById(R.id.cb_co_passwd);
         mCbShowPwd = (CheckBox) findViewById(R.id.co_passwd_visible);
         mSpType = (Spinner) findViewById(R.id.sp_co_type);
-        mFileTypes = getResources().getStringArray(R.array.array_compress_type);
 
         mCompressList = new ArrayList<>();
         mCompressList.clear();
@@ -78,6 +76,19 @@ public class CompressActivity extends Activity {
         }
         mCompressAdapter.notifyDataSetChanged();
 
+        ArrayAdapter adapter;
+        if (mCompressList.size() == 1 && mCompressList.get(0).endsWith(".tar")) {
+            adapter = ArrayAdapter.createFromResource(this, R.array.complex_compress_type,
+                                                      android.R.layout.simple_spinner_item);
+            mFileTypes = getResources().getStringArray(R.array.complex_compress_type);
+        } else {
+            adapter = ArrayAdapter.createFromResource(this, R.array.simple_compress_type,
+                                                      android.R.layout.simple_spinner_item);
+            mFileTypes = getResources().getStringArray(R.array.simple_compress_type);
+        }
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpType.setAdapter(adapter);
+
         mClickListener = new ButtonClickListener();
         mCheckedListener = new CheckBoxChangeListener();
         mBtDestination.setOnClickListener(mClickListener);
@@ -93,38 +104,22 @@ public class CompressActivity extends Activity {
     }
 
     private void compressProcess() {
-        StringBuilder sbCmd = new StringBuilder("7z a ");
-        StringBuilder cmd = new StringBuilder("7z a ");
-        if (mSpType.getSelectedItemPosition() == CompressUtils.TAR_GZ_POSITION
-            || mSpType.getSelectedItemPosition() == CompressUtils.TAR_BZ2_POSITION) {
-            sbCmd.append("-ttar ");
-            cmd.append("'" + mEtDestination.getText() + File.separator
-                + mEtFileName.getText() + "." + mFileTypes[mSpType.getSelectedItemPosition()]
-                + "' " + "'" + mEtDestination.getText() + File.separator
-                + mEtFileName.getText() + ".tar" + "' ");
-            mIsDefaultType = true;
-        } else {
-            sbCmd.append("-t" + mFileTypes[mSpType.getSelectedItemPosition()] + " ");
-            cmd = null;
-            mIsDefaultType = false;
-        }
-        sbCmd.append("'" + mEtDestination.getText() + File.separator +
-                     mEtFileName.getText() + "' ");
-        sbCmd.append("'");
+        CompressUtils utils = new CompressUtils();
+        StringBuilder simpleCmd = new StringBuilder("7z a ");
+        simpleCmd.append("'" + mEtDestination.getText().toString() + File.separator +
+                      mEtFileName.getText() + mFileTypes[mSpType.getSelectedItemPosition()] + "' ");
+        simpleCmd.append("'");
         for (int i = 0; i < mCompressList.size() - 1; i++) {
-            sbCmd.append(mCompressList.get(i) + "' '");
+            simpleCmd.append(mCompressList.get(i) + "' '");
         }
-        sbCmd.append(mCompressList.get(mCompressList.size() - 1) + "' ");
+        simpleCmd.append(mCompressList.get(mCompressList.size() - 1) + "' ");
         if (mIsPassword) {
-            if (mIsDefaultType) {
-                cmd.append("'-p" + mEtPassword.getText().toString() + "' ");
-            } else {
-                sbCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
-            }
+            simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
-        CompressUtils utils = new CompressUtils(this, sbCmd.toString(),
-                 mIsDefaultType ? cmd.toString() : null);
-        utils.checkFileName(mEtFileName.getText().toString());
+        utils.initUtils(this, simpleCmd.toString());
+        utils.checkFileName(mEtDestination.getText().toString() + File.separator +
+              mEtFileName.getText()+ mFileTypes[mSpType.getSelectedItemPosition()],
+              mEtFileName.getText().toString());
     }
 
     @Override

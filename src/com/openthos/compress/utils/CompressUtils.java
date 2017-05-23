@@ -27,8 +27,6 @@ public class CompressUtils {
     private static final int RET_MEMORY = 8;
     private static final int RET_USER_STOP = 255;
     public static final int REQUEST_CODE_DST = 1;
-    public static final int TAR_GZ_POSITION = 3;
-    public static final int TAR_BZ2_POSITION = 4;
 
     private static final int FILE_NAME_LEGAL = 13;
     private static final int FILE_NAME_NULL = 14;
@@ -39,14 +37,11 @@ public class CompressUtils {
     private Thread mThread;
     private Handler mHandler;
     private String mCommand;
-    private String mCommandTar;
-    boolean mIsOk = true;
     private ProgressInfoDialog mDialog;
 
-    public CompressUtils(Context context, String command, String commandTar) {
+    public void initUtils(Context context, String command) {
         mContext = context;
         mCommand = command;
-        mCommandTar = commandTar;
         mDialog = ProgressInfoDialog.getInstance(context);
         mDialog.setCancelable(false);
 
@@ -91,11 +86,7 @@ public class CompressUtils {
         mThread = new Thread() {
             @Override
             public void run() {
-
                 int ret = ZipUtils.executeCommand(CompressUtils.this.mCommand);
-                if ((ret == RET_SUCCESS || ret == RET_WARNING) && mCommandTar != null) {
-                    ret = ZipUtils.executeCommand(CompressUtils.this.mCommandTar);
-                }
                 mDialog.cancel();
                 mHandler.sendEmptyMessage(ret);
                 super.run();
@@ -129,8 +120,12 @@ public class CompressUtils {
         return true;
     }*/
 
-    public void checkFileName(String name) {
-        boolean isOk = true;
+    public void checkFileName(String path, String name) {
+        if (new File(path).exists()) {
+            toast(mContext.getString(R.string.filename_aready_exists));
+            return;
+        }
+        boolean isNameLegal = true;
         switch (isValidFileName(name)) {
             case FILE_NAME_NULL:
                 toast(mContext.getString(R.string.file_name_not_null));
@@ -139,7 +134,7 @@ public class CompressUtils {
                 toast(mContext.getString(R.string.file_name_illegal));
                 return;
             case FILE_NAME_WARNING:
-                isOk = false;
+                isNameLegal = false;
                 DialogInterface.OnClickListener ok = new DialogInterface.OnClickListener() {
 
                     @Override
@@ -149,13 +144,13 @@ public class CompressUtils {
                 };
                 showChooseAlertDialog(R.string.file_name_warning, ok, null);
         }
-        if (isOk) {
+        if (isNameLegal) {
             start();
         }
     }
 
     public void toast(String text) {
-        Toast.makeText(mContext, text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, "" + text, Toast.LENGTH_SHORT).show();
     }
 
     public int isValidFileName(String fileName) {
@@ -178,6 +173,7 @@ public class CompressUtils {
                 .setMessage(mContext.getResources().getString(messageId))
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), ok)
                 .setNegativeButton(mContext.getResources().getString(R.string.cancel), cancel)
+                .setCancelable(false)
                 .create();
         dialog.show();
     }

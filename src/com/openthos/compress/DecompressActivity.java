@@ -24,7 +24,6 @@ public class DecompressActivity extends Activity {
     private CheckBoxChangeListener mCheckedListener;
     private ButtonClickListener mClickListener;
     private boolean mIsPassword;
-    private boolean mIsSpecialType;
     private String mDeFileName;
 
     @Override
@@ -55,32 +54,15 @@ public class DecompressActivity extends Activity {
     }
 
     private void extractProcess() {
+        CompressUtils utils = new CompressUtils();
         StringBuilder simpleCmd = new StringBuilder("7z x ");
-        StringBuilder complexCmd = new StringBuilder("7z x ");
         simpleCmd.append("'" + mDeFileName + "' ");
-        if (mDeFileName.endsWith(".tar.gz") || mDeFileName.endsWith("tar.bz2")) {
-            mDeFileName = mEtDestination.getText().toString()
-               + mDeFileName.substring(mDeFileName.lastIndexOf("/"), mDeFileName.lastIndexOf("."));
-            complexCmd.append("'" + mDeFileName + "' ");
-            mIsSpecialType = true;
-        } else {
-            complexCmd = null;
-            mIsSpecialType = false;
-        }
-
         if (mIsPassword) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
         simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
-        if (mIsSpecialType) {
-            complexCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
-        }
         simpleCmd.append("-aoa ");
-        if (mIsSpecialType) {
-            complexCmd.append("-aoa ");
-        }
-        CompressUtils utils = new CompressUtils(this, simpleCmd.toString(),
-                 mIsSpecialType ? complexCmd.toString() : null);
+        utils.initUtils(this, simpleCmd.toString());
         utils.start();
     }
 

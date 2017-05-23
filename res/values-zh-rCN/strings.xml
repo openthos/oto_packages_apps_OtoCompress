@@ -28,5 +28,6 @@
     <string name="file_name_illegal">文件名含有非法字符 /</string>
     <string name="file_name_not_null">文件名不能为空。</string>
     <string name="file_name_warning">提示\n请避免文件使用以下字符: @ # $ ^ &amp; * ( ) [ ]. \n确认使用此文件名？</string>
-    <string name="compress_info">Do in progress...</string>
+    <string name="compress_info">正在操作......</string>
+    <string name="filename_aready_exists">此文件名已存在</string>
 </resources>

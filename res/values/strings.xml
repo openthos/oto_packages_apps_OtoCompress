@@ -29,13 +29,16 @@
     <string name="file_name_illegal">File name has illegal character /</string>
     <string name="file_name_warning">Warning:\nAvoid containing these chractors: @ # $ ^ &amp; * ( ) [ ].\nDo you determine use this file name?</string>
     <string name="compress_info">Do in progress...</string>
+    <string name="filename_aready_exists">This file name is aready exists.</string>
 
-    <string-array name="array_compress_type">
-        <item>zip</item>
-        <item>7z</item>
-        <item>tar</item>
-        <item>tar.gz</item>
-        <item>tar.bz2</item>
+    <string-array name="simple_compress_type">
+        <item>.zip</item>
+        <item>.7z</item>
+        <item>.tar</item>
     </string-array>
 
+    <string-array name="complex_compress_type">
+        <item>.tar.gz</item>
+        <item>.tar.bz2</item>
+    </string-array>
 </resources>
