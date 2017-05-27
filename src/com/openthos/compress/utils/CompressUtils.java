@@ -20,6 +20,9 @@ public class CompressUtils {
 
     public static final String EXTRA_DELETE_FILE_HEADER = "OtoDeleteFile:///";
     public static final String COMPRESS_FILE_PATH = "paths";
+    public static final String SUFFIX_TAR = ".tar";
+    public static final String SUFFIX_GZ = ".tar.gz";
+    public static final String SUFFIX_BZ2 = ".tar.bz2";
     private static final int RET_SUCCESS = 0;
     private static final int RET_WARNING = 1;
     private static final int RET_FAULT = 2;
@@ -78,6 +81,8 @@ public class CompressUtils {
                     } else {
                         ((DecompressActivity) mContext).finish();
                     }
+                } else if (msg.what == RET_FAULT && mContext instanceof DecompressActivity) {
+                    ((DecompressActivity) mContext).inputPassword();
                 }
                 return false;
             }

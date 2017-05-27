@@ -25,6 +25,7 @@ public class DecompressActivity extends Activity {
     private ButtonClickListener mClickListener;
     private boolean mIsPassword;
     private String mDeFileName;
+    private CompressUtils mUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class DecompressActivity extends Activity {
     }
 
     private void extractProcess() {
-        CompressUtils utils = new CompressUtils();
+        mUtils = new CompressUtils();
         StringBuilder simpleCmd = new StringBuilder("7z x ");
         simpleCmd.append("'" + mDeFileName + "' ");
         if (mIsPassword) {
@@ -62,8 +63,8 @@ public class DecompressActivity extends Activity {
         }
         simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
         simpleCmd.append("-aoa ");
-        utils.initUtils(this, simpleCmd.toString());
-        utils.start();
+        mUtils.initUtils(this, simpleCmd.toString());
+        mUtils.start();
     }
 
     private void startFileChooser(int filter, int requestCode) {
@@ -127,6 +128,15 @@ public class DecompressActivity extends Activity {
                 default:
                     break;
             }
+        }
+    }
+
+    public void inputPassword() {
+        if (!(mDeFileName.endsWith(CompressUtils.SUFFIX_TAR)
+                || mDeFileName.endsWith(CompressUtils.SUFFIX_GZ)
+                || mDeFileName.endsWith(CompressUtils.SUFFIX_BZ2))) {
+            mCbPassword.setChecked(true);
+            mUtils.toast(getString(R.string.input_password));
         }
     }
 }

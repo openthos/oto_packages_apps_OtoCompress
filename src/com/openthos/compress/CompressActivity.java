@@ -16,6 +16,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.AdapterView;
 
 import com.openthos.compress.utils.CompressUtils;
 
@@ -34,12 +35,14 @@ public class CompressActivity extends Activity {
     private Spinner mSpType;
     private ButtonClickListener mClickListener;
     private CheckBoxChangeListener mCheckedListener;
+    private TypeSelectedListener mSelectedListener;
 
     private List<String> mCompressList;
     private ArrayAdapter mCompressAdapter;
 
     private String[] mFileTypes;
     private boolean mIsPassword;
+    private ArrayAdapter mTypeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,32 +72,37 @@ public class CompressActivity extends Activity {
         mEtDestination.setText(dstPath.substring(0, dstPath.lastIndexOf("/")));
         mCompressAdapter = new ArrayAdapter(this, R.layout.list_item, mCompressList);
         mListView.setAdapter(mCompressAdapter);
+        ViewGroup.LayoutParams params = mListView.getLayoutParams();
         if (mCompressList.size() > LIMIT_FILES_NUM) {
-            ViewGroup.LayoutParams params = mListView.getLayoutParams();
             params.height = LIMIT_FILES_HEIGHT;
-            mListView.setLayoutParams(params);
+        } else {
+            params.height =
+                (int) (getResources().getDimension(R.dimen.item_height) * mCompressList.size()
+                + mListView.getDividerHeight() * (mCompressList.size() -1));
         }
+        mListView.setLayoutParams(params);
         mCompressAdapter.notifyDataSetChanged();
 
-        ArrayAdapter adapter;
-        if (mCompressList.size() == 1 && mCompressList.get(0).endsWith(".tar")) {
-            adapter = ArrayAdapter.createFromResource(this, R.array.complex_compress_type,
+        if (mCompressList.size() == 1 && mCompressList.get(0).endsWith(CompressUtils.SUFFIX_TAR)) {
+            mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.complex_compress_type,
                                                       android.R.layout.simple_spinner_item);
             mFileTypes = getResources().getStringArray(R.array.complex_compress_type);
         } else {
-            adapter = ArrayAdapter.createFromResource(this, R.array.simple_compress_type,
+            mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.simple_compress_type,
                                                       android.R.layout.simple_spinner_item);
             mFileTypes = getResources().getStringArray(R.array.simple_compress_type);
         }
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpType.setAdapter(adapter);
+        mTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpType.setAdapter(mTypeAdapter);
 
         mClickListener = new ButtonClickListener();
         mCheckedListener = new CheckBoxChangeListener();
+        mSelectedListener = new TypeSelectedListener();
         mBtDestination.setOnClickListener(mClickListener);
         mBtCompress.setOnClickListener(mClickListener);
         mCbPassword.setOnCheckedChangeListener(mCheckedListener);
         mCbShowPwd.setOnCheckedChangeListener(mCheckedListener);
+        mSpType.setOnItemSelectedListener(mSelectedListener);
     }
 
     private void startFileChooser(int filter, int requestCode) {
@@ -177,6 +185,27 @@ public class CompressActivity extends Activity {
                 default:
                     break;
             }
+        }
+    }
+
+    private class TypeSelectedListener implements AdapterView.OnItemSelectedListener {
+
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
+            if (CompressUtils.SUFFIX_TAR.equals(mTypeAdapter.getItem(pos))
+                    || mFileTypes[0].startsWith(CompressUtils.SUFFIX_TAR)) {
+                mCbPassword.setVisibility(View.GONE);
+                mCbPassword.setChecked(false);
+                mCbShowPwd.setChecked(false);
+                mEtPassword.setText(null);
+            } else {
+                mCbPassword.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapter) {
+
         }
     }
 }
