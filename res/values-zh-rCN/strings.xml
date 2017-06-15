@@ -30,4 +30,5 @@
     <string name="file_name_warning">提示\n请避免文件使用以下字符: @ # $ ^ &amp; * ( ) [ ]. \n确认使用此文件名？</string>
     <string name="compress_info">正在操作......</string>
     <string name="filename_aready_exists">此文件名已存在</string>
+    <string name="hint_input_password">解压缩失败。\n请尝试输入密码。</string>
 </resources>

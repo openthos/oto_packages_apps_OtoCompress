@@ -30,6 +30,7 @@
     <string name="file_name_warning">Warning:\nAvoid containing these chractors: @ # $ ^ &amp; * ( ) [ ].\nDo you determine use this file name?</string>
     <string name="compress_info">Do in progress...</string>
     <string name="filename_aready_exists">This file name is aready exists.</string>
+    <string name="hint_input_password">Decompression fail.\nPlease try to input password.</string>
 
     <string-array name="simple_compress_type">
         <item>.zip</item>

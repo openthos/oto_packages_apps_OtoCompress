@@ -136,7 +136,7 @@ public class DecompressActivity extends Activity {
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_GZ)
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_BZ2))) {
             mCbPassword.setChecked(true);
-            mUtils.toast(getString(R.string.input_password));
+            mUtils.showSimpleAlertDialog(getString(R.string.hint_input_password));
         }
     }
 }

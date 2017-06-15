@@ -182,4 +182,13 @@ public class CompressUtils {
                 .create();
         dialog.show();
     }
+
+    public void showSimpleAlertDialog(String  message) {
+        AlertDialog dialog = new AlertDialog.Builder(mContext)
+                .setMessage(message)
+                .setPositiveButton(mContext.getResources().getString(R.string.confirm), null)
+                .setCancelable(false)
+                .create();
+        dialog.show();
+    }
 }
