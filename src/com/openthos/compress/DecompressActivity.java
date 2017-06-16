@@ -12,6 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.text.TextUtils;
 
 import com.openthos.compress.utils.CompressUtils;
 
@@ -58,7 +59,7 @@ public class DecompressActivity extends Activity {
         mUtils = new CompressUtils();
         StringBuilder simpleCmd = new StringBuilder("7z x ");
         simpleCmd.append("'" + mDeFileName + "' ");
-        if (mIsPassword) {
+        if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
         simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");

@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.AdapterView;
+import android.text.TextUtils;
 
 import com.openthos.compress.utils.CompressUtils;
 
@@ -121,7 +122,7 @@ public class CompressActivity extends Activity {
             simpleCmd.append(mCompressList.get(i) + "' '");
         }
         simpleCmd.append(mCompressList.get(mCompressList.size() - 1) + "' ");
-        if (mIsPassword) {
+        if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
         utils.initUtils(this, simpleCmd.toString());
