@@ -34,6 +34,7 @@ EXTERN_C_BEGIN
 #endif
 
 int executeCommand(const char* cmd);
+const char* executeCommandGetStream(const char* cmd);
 
 EXTERN_C_END
 

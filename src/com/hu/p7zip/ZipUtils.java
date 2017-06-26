@@ -8,6 +8,8 @@ public class ZipUtils {
 	 * @return return code
 	 */
 	public static native int executeCommand(String command);
+
+	public static native String executeCommandGetStream(String command);
 	
 	/**
 	 * load native library

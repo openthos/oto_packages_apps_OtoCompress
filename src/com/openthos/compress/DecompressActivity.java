@@ -65,6 +65,7 @@ public class DecompressActivity extends Activity {
         simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
         simpleCmd.append("-aoa ");
         mUtils.initUtils(this, simpleCmd.toString());
+        mUtils.setDecompressInfo(mDeFileName, mEtDestination.getText().toString());
         mUtils.start();
     }
 

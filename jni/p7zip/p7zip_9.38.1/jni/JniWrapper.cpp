@@ -23,6 +23,12 @@ extern int MY_CDECL main(
 #endif
 		);
 
+extern const char* MY_CDECL main_GetStream(
+#ifndef _WIN32
+		int numArgs, char *args[]
+#endif
+		);
+
 /**
  * get args from string
  */
@@ -145,3 +151,20 @@ int executeCommand(const char* cmd) {
 	return main(argc, (const char**) argv);
 }
 
+const char* executeCommandGetStream(const char* cmd) {
+	int argc = 0;
+	char temp[ARGC_MAX][ARGV_LEN_MAX] = { 0 };
+	char* argv[ARGC_MAX] = { 0 };
+
+	/** command line option error*/
+	if ((str2args(cmd, temp, &argc)) == false) {
+		return "error";
+	}
+
+	for (int i = 0; i < argc; i++) {
+		argv[i] = temp[i];
+		LOGI("arg[%d]:[%s]", i, argv[i]);
+	}
+
+	return main_GetStream(argc, (char**) argv);
+}

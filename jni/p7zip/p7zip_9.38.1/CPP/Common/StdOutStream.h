@@ -9,10 +9,16 @@
 #include "MyTypes.h"
 #include "jni/JniWrapper.h"
 
+#define OUTBUFLEN 8192
+
 class CStdOutStream
 {
   FILE *_stream;
   bool _streamIsOpen;
+
+  char OutBuf[OUTBUFLEN];
+  int OutBufFlag;
+
 public:
   CStdOutStream(): _stream(0), _streamIsOpen(false) {};
   CStdOutStream(FILE *stream): _stream(stream), _streamIsOpen(false) {};
@@ -34,7 +40,13 @@ public:
 
   CStdOutStream & operator<<(const char *s) throw()
   {
-	LOGE("%s", s);
+    LOGI("CStdOutStream:(%s)", s);
+
+    if((OutBufFlag == 1) && (strlen(OutBuf) < OUTBUFLEN)){
+	    strcat(OutBuf, s);
+	    strcat(OutBuf, "\n");
+    }
+
     fputs(s, _stream);
     return *this;
   }
@@ -52,6 +64,18 @@ public:
 
   CStdOutStream & operator<<(const wchar_t *s);
   void PrintUString(const UString &s, AString &temp);
+
+  void enableOutBufFlag(){
+	  OutBufFlag = 1;
+	  strcpy(OutBuf, "");
+  }
+  void disableOutBufFlag(){
+	  OutBufFlag = 0;
+  }
+  char* GetOutBuf(){
+	  return OutBuf;
+  }
+
 };
 
 CStdOutStream & endl(CStdOutStream & outStream) throw();

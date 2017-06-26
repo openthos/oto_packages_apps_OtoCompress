@@ -33,6 +33,23 @@ JNIEXPORT jint JNICALL NDK_FUNC(executeCommand)
 	return ret;
 }
 
+JNIEXPORT jstring JNICALL NDK_FUNC(executeCommandGetStream)
+(JNIEnv *env, jclass thiz, jstring command)
+{
+	const char* ccommand = (const char*)env->GetStringUTFChars(command, NULL);
+	//char GetStr[1024];
+
+	LOGI("start[%s]", ccommand);
+	const char* GetStr = executeCommandGetStream((const char*)ccommand);
+	LOGI("end[%s]", ccommand);
+
+	env->ReleaseStringUTFChars(command, ccommand);
+
+	jstring str = (*env).NewStringUTF(GetStr);
+
+	return str;
+}
+
 #ifdef __cplusplus
 }
 #endif

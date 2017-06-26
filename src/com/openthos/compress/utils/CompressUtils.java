@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.widget.Toast;
+import android.app.Activity;
 
 import com.openthos.compress.CompressActivity;
 import com.openthos.compress.DecompressActivity;
@@ -15,6 +16,7 @@ import com.hu.p7zip.ZipUtils;
 
 import java.io.File;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 public class CompressUtils {
 
@@ -31,15 +33,20 @@ public class CompressUtils {
     private static final int RET_USER_STOP = 255;
     public static final int REQUEST_CODE_DST = 1;
 
-    private static final int FILE_NAME_LEGAL = 13;
-    private static final int FILE_NAME_NULL = 14;
-    private static final int FILE_NAME_ILLEGAL = 15;
-    private static final int FILE_NAME_WARNING = 16;
+    private static final int FILE_NAME_LEGAL = 11;
+    private static final int FILE_NAME_NULL = 12;
+    private static final int FILE_NAME_ILLEGAL = 13;
+    private static final int FILE_NAME_WARNING = 14;
+
+    private static final int CONTENT_START_INDEX = 41;
+    private static final int CONTENT_END_INDEX = 15;
 
     private Context mContext;
     private Thread mThread;
     private Handler mHandler;
     private String mCommand;
+    private String mSourceName;
+    private String mDestinationPath;
     private ProgressInfoDialog mDialog;
 
     public void initUtils(Context context, String command) {
@@ -76,10 +83,8 @@ public class CompressUtils {
                 }
                 toast(mContext.getString(retMsgId));
                 if (msg.what == RET_SUCCESS || msg.what == RET_WARNING) {
-                    if (mContext instanceof CompressActivity) {
-                        ((CompressActivity) mContext).finish();
-                    } else {
-                        ((DecompressActivity) mContext).finish();
+                    if (mContext instanceof Activity) {
+                        ((Activity) mContext).finish();
                     }
                 } else if (msg.what == RET_FAULT && mContext instanceof DecompressActivity) {
                     ((DecompressActivity) mContext).inputPassword();
@@ -100,12 +105,96 @@ public class CompressUtils {
     }
 
     public void start() {
-        mThread.start();
-        mDialog.showDialog(R.raw.compress);
-        if (mContext instanceof DecompressActivity) {
-            mDialog.showDialog(R.raw.decompress);
+        if (mCommand.startsWith("7z x")) {
+            new Thread() {
+
+                @Override
+                public void run() {
+                    if (!checkExist()) {
+                        ((Activity) mContext).runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                mThread.start();
+                                mDialog.showDialog(R.raw.decompress);
+                                mDialog.changeTitle(mContext.getResources().
+                                    getString(R.string.compress_info));
+                            }
+                        });
+                    }
+                }
+            }.start();
+        } else {
+            mThread.start();
+            mDialog.showDialog(R.raw.compress);
+            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
         }
-        mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
+    }
+
+    private boolean checkExist() {
+        File[] files = new File(mDestinationPath).listFiles();
+        if (files == null) {
+            return false;
+        }
+        ArrayList<String> archieveList = new ArrayList<>();
+        StringBuilder builder = new StringBuilder("7z l ");
+        builder.append("'" + mSourceName + "'");
+        String result = ZipUtils.executeCommandGetStream(builder.toString());
+        /**
+         * result eg:
+         * index   Date      Time    Attr         Size   Compressed  Name
+         * 39      ------------------- ----- ------------ ------------  ------------------------
+         * 40      2017-06-22 10:48:00 D....            0            0
+         * 41      Screenshots
+         * 42      2017-06-22 10:48:00 .....       360139       359663
+         * 43      Screenshots/Screenshot_2017-06-22-10-47-59.png
+         * 44      ------------------- ----- ------------ ------------  ------------------------
+         * 45      2017-06-22 10:48:00             360139       359663  1 files, 1 folders
+         */
+        String[] allFiles = result.split("\n");
+        for (int i = CONTENT_START_INDEX; i <= allFiles.length - CONTENT_END_INDEX; i += 2) {
+            if (allFiles[i].contains("/")) {
+                allFiles[i] = allFiles[i].replace(allFiles[i].substring(allFiles[i].indexOf("/")), "");
+                if (!archieveList.contains(allFiles[i])) {
+                    archieveList.add(allFiles[i]);
+                }
+            } else {
+                archieveList.add(allFiles[i]);
+            }
+        }
+
+        for (final String s : archieveList) {
+            for (File file : files) {
+                if (file.getName().equals(s)) {
+                    ((Activity) mContext).runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            DialogInterface.OnClickListener ok =
+                                    new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    mThread.start();
+                                    mDialog.showDialog(R.raw.decompress);
+                                    mDialog.changeTitle(mContext.getResources().
+                                        getString(R.string.compress_info));
+                                }
+                            };
+                            showChooseAlertDialog(String.format(mContext.getResources().
+                                getString(R.string.dialog_decompress_text), s), ok, null);
+                        }
+                    });
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void setDecompressInfo(String name, String path) {
+        mSourceName = name;
+        mDestinationPath = path;
     }
 
     /*public boolean checkPath(String path) {
@@ -147,7 +236,8 @@ public class CompressUtils {
                         start();
                     }
                 };
-                showChooseAlertDialog(R.string.file_name_warning, ok, null);
+                showChooseAlertDialog(
+                    mContext.getResources().getString(R.string.file_name_warning), ok, null);
         }
         if (isNameLegal) {
             start();
@@ -172,10 +262,10 @@ public class CompressUtils {
         }
     }
 
-    public void showChooseAlertDialog(int messageId,
+    public void showChooseAlertDialog(String message,
                        DialogInterface.OnClickListener ok, DialogInterface.OnClickListener cancel) {
         AlertDialog dialog = new AlertDialog.Builder(mContext)
-                .setMessage(mContext.getResources().getString(messageId))
+                .setMessage(message)
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), ok)
                 .setNegativeButton(mContext.getResources().getString(R.string.cancel), cancel)
                 .setCancelable(false)

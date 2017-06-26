@@ -123,3 +123,101 @@ int MY_CDECL main
   }
   return res;
 }
+
+const char* MY_CDECL main_GetStream
+(
+  #ifndef _WIN32
+  int numArgs, char *args[]
+  #endif
+)
+{
+  g_StdStream = &g_StdOut;
+
+  NT_CHECK
+
+  NConsoleClose::CCtrlHandlerSetter ctrlHandlerSetter;
+  int res = 0;
+
+  g_StdStream->enableOutBufFlag();
+
+  try
+  {
+    res = Main2(
+    #ifndef _WIN32
+    numArgs, args
+    #endif
+    );
+  }
+  catch(const CNewException &)
+  {
+    (*g_StdStream) << kMemoryExceptionMessage;
+    return "MemoryError";
+  }
+  catch(const NConsoleClose::CCtrlBreakException &)
+  {
+    (*g_StdStream) << endl << kUserBreak;
+    return "UserBreak";
+  }
+  catch(const CArcCmdLineException &e)
+  {
+    (*g_StdStream) << kException_CmdLine_Error_Message << e << endl;
+    return "UserError";
+  }
+  catch(const CSystemException &systemError)
+  {
+    if (systemError.ErrorCode == E_OUTOFMEMORY)
+    {
+      (*g_StdStream) << kMemoryExceptionMessage;
+      return "MemoryError";
+    }
+    if (systemError.ErrorCode == E_ABORT)
+    {
+      (*g_StdStream) << endl << kUserBreak;
+      return "UserBreak";
+    }
+    (*g_StdStream) << endl << endl << "System error:" << endl <<
+        NError::MyFormatMessage(systemError.ErrorCode) << endl;
+    return "FatalError";
+  }
+  catch(NExitCode::EEnum &exitCode)
+  {
+    (*g_StdStream) << kInternalExceptionMessage << exitCode << endl;
+    return "exit";
+  }
+  /*
+  catch(const NExitCode::CMultipleErrors &multipleErrors)
+  {
+    (*g_StdStream) << endl << multipleErrors.NumErrors << " errors" << endl;
+    return (NExitCode::kFatalError);
+  }
+  */
+  catch(const UString &s)
+  {
+    (*g_StdStream) << kExceptionErrorMessage << s << endl;
+    return "FatalError";
+  }
+  catch(const AString &s)
+  {
+    (*g_StdStream) << kExceptionErrorMessage << s << endl;
+    return "FatalError";
+  }
+  catch(const char *s)
+  {
+    (*g_StdStream) << kExceptionErrorMessage << s << endl;
+    return "FatalError";
+  }
+  catch(int t)
+  {
+    (*g_StdStream) << kInternalExceptionMessage << t << endl;
+    return "FatalError";
+  }
+  catch(...)
+  {
+    (*g_StdStream) << kUnknownExceptionMessage;
+    return "FatalError";
+  }
+
+  g_StdStream->disableOutBufFlag();
+
+  return g_StdStream->GetOutBuf();
+}
