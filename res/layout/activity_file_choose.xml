@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="@dimen/activity_padding"
     android:background="@color/white" >
 
     <TextView
@@ -11,6 +12,7 @@
         android:layout_height="@dimen/item_height"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:gravity="center_vertical"
         android:ellipsize="start"
         android:singleLine="true"
         android:textColor="@color/black"
@@ -20,10 +22,12 @@
         android:id="@+id/lv_file_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scrollbars="none"
         android:layout_above="@+id/ll_bottom"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/tv_file_path"
         android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
         tools:listitem="@layout/file_list_item" >
     </ListView>
 

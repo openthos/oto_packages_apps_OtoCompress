@@ -22,6 +22,7 @@ public class CompressUtils {
 
     public static final String EXTRA_DELETE_FILE_HEADER = "OtoDeleteFile:///";
     public static final String COMPRESS_FILE_PATH = "paths";
+    public static final String SDCARD_PATH = "/storage/emulated/0";
     public static final String SUFFIX_TAR = ".tar";
     public static final String SUFFIX_GZ = ".tar.gz";
     public static final String SUFFIX_BZ2 = ".tar.bz2";
@@ -49,10 +50,13 @@ public class CompressUtils {
     private String mDestinationPath;
     private ProgressInfoDialog mDialog;
 
-    public void initUtils(Context context, String command) {
+    public CompressUtils(Context context) {
         mContext = context;
+    }
+
+    public void initUtils(String command) {
         mCommand = command;
-        mDialog = ProgressInfoDialog.getInstance(context);
+        mDialog = ProgressInfoDialog.getInstance(mContext);
         mDialog.setCancelable(false);
 
         mHandler = new Handler(new Handler.Callback() {

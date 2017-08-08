@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">压缩解压缩</string>
+    <string name="app_name">压缩软件</string>
     <string name="compress">压缩</string>
     <string name="decompress">解压缩</string>
     <string name="msg_ret_success">成功</string>
@@ -32,4 +32,6 @@
     <string name="filename_aready_exists">此文件名已存在</string>
     <string name="hint_input_password">解压缩失败。\n请尝试输入密码。</string>
     <string name="dialog_decompress_text">"%1$s" 已经存在，是否继续解压缩（将会覆盖重名文件）？</string>
+    <string name="exit_promt">确定要退出应用吗？</string>
+    <string name="hint_no_permission">您没有目标路径的操作权限。</string>
 </resources>

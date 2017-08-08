@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.openthos.compress.adapter.FileListAdapter;
+import com.openthos.compress.utils.CompressUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -23,7 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class FileChooseActivity extends Activity {
+public class FileChooseActivity extends BaseActivity {
 
     private TextView mTvFilePath;
     private ListView mListView;
@@ -48,16 +49,17 @@ public class FileChooseActivity extends Activity {
     public static final int FILTER_MULTI = 0x100;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView() {
         setContentView(R.layout.activity_file_choose);
-
         mTvFilePath = (TextView) findViewById(R.id.tv_file_path);
         mListView = (ListView) findViewById(R.id.lv_file_list);
         mLlBottom = (LinearLayout) findViewById(R.id.ll_bottom);
         mBtConfirm = (Button) findViewById(R.id.bt_bottom_ok);
         mBtCancel = (Button) findViewById(R.id.bt_bottom_cancel);
+    }
 
+    @Override
+    protected void initData() {
         mFileList = new ArrayList<File>();
         Intent intent = getIntent();
         int filter = intent.getIntExtra(STRING_FILTER, FILTER_FILE);
@@ -67,19 +69,25 @@ public class FileChooseActivity extends Activity {
         if (mChooseDir || mChooseMulti) {
             mLlBottom.setVisibility(View.VISIBLE);
         }
-
-        FileItemClickListener itemListener = new FileItemClickListener();
-        ButtonClickListener buttonListener = new ButtonClickListener();
-        mListView.setOnItemClickListener(itemListener);
-        mBtConfirm.setOnClickListener(buttonListener);
-        mBtCancel.setOnClickListener(buttonListener);
-
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             mCurrentDir = Environment.getExternalStorageDirectory();
         } else {
             mCurrentDir = new File("/");
         }
         showSubFiles();
+    }
+
+    @Override
+    protected void initListener() {
+        FileItemClickListener itemListener = new FileItemClickListener();
+        ButtonClickListener buttonListener = new ButtonClickListener();
+        mListView.setOnItemClickListener(itemListener);
+        mBtConfirm.setOnClickListener(buttonListener);
+        mBtCancel.setOnClickListener(buttonListener);
+    }
+
+    @Override
+    protected void startCommand() {
     }
 
     private class FileItemClickListener implements OnItemClickListener {
@@ -137,7 +145,8 @@ public class FileChooseActivity extends Activity {
         if (mCurrentDir == null) {
             return;
         }
-        mIsRoot = (mCurrentDir.getParent() == null);
+        mIsRoot = (mCurrentDir.getParent() == null)
+            || (mIsUserVersion && mCurrentDir.getAbsolutePath().equals(CompressUtils.SDCARD_PATH));
         mTvFilePath.setText(mCurrentDir.getAbsolutePath());
         mFileList.clear();
         readSubFiles();
@@ -185,7 +194,11 @@ public class FileChooseActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            mCurrentDir = mCurrentDir.getParentFile();
+            if (mIsUserVersion && mCurrentDir.getAbsolutePath().equals("/storage/emulated/0")) {
+                mCurrentDir = null;
+            } else {
+                mCurrentDir = mCurrentDir.getParentFile();
+            }
             if (mCurrentDir == null) {
                 this.finish();
             } else {

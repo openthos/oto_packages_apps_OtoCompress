@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">OtoCompress</string>
+    <string name="app_name">Archiver</string>
     <string name="compress">Compress</string>
     <string name="decompress">Decompress</string>
     <string name="msg_ret_success">Success</string>
@@ -18,7 +18,7 @@
     <string name="input_password">Input password</string>
     <string name="decompress_output_path">Decompress output path</string>
     <string name="decompress_file_name">Decompress file name</string>
-    <string name="confirm">Ok</string>
+    <string name="confirm">OK</string>
     <string name="cancel">Cancel</string>
     <string name="parent_folder">Parent folder</string>
     <string name="source_file">Source file</string>
@@ -32,6 +32,8 @@
     <string name="filename_aready_exists">This file name is aready exists.</string>
     <string name="hint_input_password">Decompression fail.\nPlease try to input password.</string>
     <string name="dialog_decompress_text">"%1$s" is already exists at Desktop, whether to decompress (which will cover the duplicate file)?</string>
+    <string name="exit_promt">Are you sure you want to exit?</string>
+    <string name="hint_no_permission">You have no operating authority in destination path.</string>
 
     <string-array name="simple_compress_type">
         <item>.zip</item>

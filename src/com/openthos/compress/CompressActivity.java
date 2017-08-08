@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompressActivity extends Activity {
+public class CompressActivity extends BaseActivity {
 
     private static final int LIMIT_FILES_NUM = 5;
     private static final int LIMIT_FILES_HEIGHT = 250;
@@ -46,10 +46,8 @@ public class CompressActivity extends Activity {
     private ArrayAdapter mTypeAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView() {
         setContentView(R.layout.activity_compress);
-
         mListView = (ListView) findViewById(R.id.lv_compress_file);
         mEtDestination = (EditText) findViewById(R.id.et_co_destination);
         mEtFileName = (EditText) findViewById(R.id.et_co_name);
@@ -59,7 +57,11 @@ public class CompressActivity extends Activity {
         mCbPassword = (CheckBox) findViewById(R.id.cb_co_passwd);
         mCbShowPwd = (CheckBox) findViewById(R.id.co_passwd_visible);
         mSpType = (Spinner) findViewById(R.id.sp_co_type);
+    }
 
+    @Override
+    protected void initData() {
+        mUtils = new CompressUtils(this);
         mCompressList = new ArrayList<>();
         mCompressList.clear();
         String path = getIntent().getStringExtra(CompressUtils.COMPRESS_FILE_PATH);
@@ -68,34 +70,39 @@ public class CompressActivity extends Activity {
             for (int i = 1; i < paths.length; i++) {
                 mCompressList.add(paths[i]);
             }
-        }
-        String dstPath = mCompressList.get(mCompressList.size() - 1);
-        mEtDestination.setText(dstPath.substring(0, dstPath.lastIndexOf("/")));
-        mCompressAdapter = new ArrayAdapter(this, R.layout.list_item, mCompressList);
-        mListView.setAdapter(mCompressAdapter);
-        ViewGroup.LayoutParams params = mListView.getLayoutParams();
-        if (mCompressList.size() > LIMIT_FILES_NUM) {
-            params.height = LIMIT_FILES_HEIGHT;
-        } else {
-            params.height =
-                (int) (getResources().getDimension(R.dimen.item_height) * mCompressList.size()
-                + mListView.getDividerHeight() * (mCompressList.size() -1));
-        }
-        mListView.setLayoutParams(params);
-        mCompressAdapter.notifyDataSetChanged();
+            mDefaultDestination = mCompressList.get(mCompressList.size() - 1);
+            mDefaultDestination = mDefaultDestination.
+                    substring(0, mDefaultDestination.lastIndexOf("/"));
+            mEtDestination.setText(mDefaultDestination);
+            mCompressAdapter = new ArrayAdapter(this, R.layout.list_item, mCompressList);
+            mListView.setAdapter(mCompressAdapter);
+            ViewGroup.LayoutParams params = mListView.getLayoutParams();
+            if (mCompressList.size() > LIMIT_FILES_NUM) {
+                params.height = LIMIT_FILES_HEIGHT;
+            } else {
+                params.height = (int) (mListView.getDividerHeight() * (mCompressList.size() -1) +
+                        getResources().getDimension(R.dimen.item_height) * mCompressList.size());
+            }
+            mListView.setLayoutParams(params);
+            mCompressAdapter.notifyDataSetChanged();
 
-        if (mCompressList.size() == 1 && mCompressList.get(0).endsWith(CompressUtils.SUFFIX_TAR)) {
-            mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.complex_compress_type,
-                                                      android.R.layout.simple_spinner_item);
-            mFileTypes = getResources().getStringArray(R.array.complex_compress_type);
-        } else {
-            mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.simple_compress_type,
-                                                      android.R.layout.simple_spinner_item);
-            mFileTypes = getResources().getStringArray(R.array.simple_compress_type);
+            if (mCompressList.size() == 1
+                    && mCompressList.get(0).endsWith(CompressUtils.SUFFIX_TAR)) {
+                mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.complex_compress_type,
+                        android.R.layout.simple_spinner_item);
+                mFileTypes = getResources().getStringArray(R.array.complex_compress_type);
+            } else {
+                mTypeAdapter = ArrayAdapter.createFromResource(this, R.array.simple_compress_type,
+                        android.R.layout.simple_spinner_item);
+                mFileTypes = getResources().getStringArray(R.array.simple_compress_type);
+            }
+            mTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpType.setAdapter(mTypeAdapter);
         }
-        mTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpType.setAdapter(mTypeAdapter);
+    }
 
+    @Override
+    protected void initListener() {
         mClickListener = new ButtonClickListener();
         mCheckedListener = new CheckBoxChangeListener();
         mSelectedListener = new TypeSelectedListener();
@@ -106,17 +113,11 @@ public class CompressActivity extends Activity {
         mSpType.setOnItemSelectedListener(mSelectedListener);
     }
 
-    private void startFileChooser(int filter, int requestCode) {
-        Intent intent = new Intent(CompressActivity.this, FileChooseActivity.class);
-        intent.putExtra(FileChooseActivity.STRING_FILTER, filter);
-        startActivityForResult(intent, requestCode);
-    }
-
-    private void compressProcess() {
-        CompressUtils utils = new CompressUtils();
+    @Override
+    protected void startCommand() {
         StringBuilder simpleCmd = new StringBuilder("7z a ");
-        simpleCmd.append("'" + mEtDestination.getText().toString() + File.separator +
-                      mEtFileName.getText() + mFileTypes[mSpType.getSelectedItemPosition()] + "' ");
+        simpleCmd.append("'" + mDestination + File.separator + mEtFileName.getText().toString() +
+                mFileTypes[mSpType.getSelectedItemPosition()] + "' ");
         simpleCmd.append("'");
         for (int i = 0; i < mCompressList.size() - 1; i++) {
             simpleCmd.append(mCompressList.get(i) + "' '");
@@ -125,10 +126,16 @@ public class CompressActivity extends Activity {
         if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
-        utils.initUtils(this, simpleCmd.toString());
-        utils.checkFileName(mEtDestination.getText().toString() + File.separator +
-              mEtFileName.getText()+ mFileTypes[mSpType.getSelectedItemPosition()],
-              mEtFileName.getText().toString());
+        mUtils.initUtils(simpleCmd.toString());
+        mUtils.checkFileName(mDestination + File.separator +
+                mEtFileName.getText().toString() + mFileTypes[mSpType.getSelectedItemPosition()],
+                mEtFileName.getText().toString());
+    }
+
+    private void startFileChooser(int filter, int requestCode) {
+        Intent intent = new Intent(CompressActivity.this, FileChooseActivity.class);
+        intent.putExtra(FileChooseActivity.STRING_FILTER, filter);
+        startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -158,7 +165,7 @@ public class CompressActivity extends Activity {
                     startFileChooser(FileChooseActivity.FILTER_DIR, CompressUtils.REQUEST_CODE_DST);
                     break;
                 case R.id.bt_co_compress:
-                    compressProcess();
+                    checkDestination(mEtDestination);
                     break;
                 default:
                     break;
@@ -209,4 +216,6 @@ public class CompressActivity extends Activity {
 
         }
     }
+
+
 }

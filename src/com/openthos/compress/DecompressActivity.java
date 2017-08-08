@@ -16,7 +16,7 @@ import android.text.TextUtils;
 
 import com.openthos.compress.utils.CompressUtils;
 
-public class DecompressActivity extends Activity {
+public class DecompressActivity extends BaseActivity {
 
     private TextView mTvDecompress;
     private Button mBtDestination, mBtDecompress;
@@ -26,13 +26,10 @@ public class DecompressActivity extends Activity {
     private ButtonClickListener mClickListener;
     private boolean mIsPassword;
     private String mDeFileName;
-    private CompressUtils mUtils;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void initView() {
         setContentView(R.layout.activity_decompress);
-
         mTvDecompress = (TextView) findViewById(R.id.tv_decompress_file);
         mBtDestination = (Button) findViewById(R.id.bt_de_destination);
         mBtDecompress = (Button) findViewById(R.id.bt_decompress);
@@ -40,32 +37,40 @@ public class DecompressActivity extends Activity {
         mEtPassword = (EditText) findViewById(R.id.et_de_password);
         mCbPassword = (CheckBox) findViewById(R.id.cb_de_password);
         mCbShowPwd = (CheckBox) findViewById(R.id.de_password_visible);
+    }
 
+    @Override
+    protected void initData() {
+        mUtils = new CompressUtils(this);
+        mDeFileName = getIntent().getStringExtra(CompressUtils.COMPRESS_FILE_PATH);
+        if (mDeFileName != null) {
+            mTvDecompress.setText(mDeFileName);
+            mDefaultDestination = mDeFileName.substring(0, mDeFileName.lastIndexOf("/"));
+            mEtDestination.setText(mDefaultDestination);
+        }
+    }
+
+    @Override
+    protected void initListener() {
         mClickListener = new ButtonClickListener();
         mCheckedListener = new CheckBoxChangeListener();
         mBtDestination.setOnClickListener(mClickListener);
         mBtDecompress.setOnClickListener(mClickListener);
         mCbPassword.setOnCheckedChangeListener(mCheckedListener);
         mCbShowPwd.setOnCheckedChangeListener(mCheckedListener);
-
-        mDeFileName = getIntent().getStringExtra(CompressUtils.COMPRESS_FILE_PATH);
-        mEtDestination.setText(mDeFileName.substring(0, mDeFileName.lastIndexOf("/")));
-        if (mDeFileName != null) {
-            mTvDecompress.setText(mDeFileName);
-        }
     }
 
-    private void extractProcess() {
-        mUtils = new CompressUtils();
+    @Override
+    protected void startCommand() {
         StringBuilder simpleCmd = new StringBuilder("7z x ");
         simpleCmd.append("'" + mDeFileName + "' ");
         if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
-        simpleCmd.append("'-o" + mEtDestination.getText().toString() + "' ");
+        simpleCmd.append("'-o" + mDefaultDestination + "' ");
         simpleCmd.append("-aoa ");
-        mUtils.initUtils(this, simpleCmd.toString());
-        mUtils.setDecompressInfo(mDeFileName, mEtDestination.getText().toString());
+        mUtils.initUtils(simpleCmd.toString());
+        mUtils.setDecompressInfo(mDeFileName, mDefaultDestination);
         mUtils.start();
     }
 
@@ -102,7 +107,7 @@ public class DecompressActivity extends Activity {
                     startFileChooser(FileChooseActivity.FILTER_DIR, CompressUtils.REQUEST_CODE_DST);
                     break;
                 case R.id.bt_decompress:
-                    extractProcess();
+                    checkDestination(mEtDestination);
                     break;
                 default:
                     break;
