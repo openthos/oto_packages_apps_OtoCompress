@@ -194,27 +194,22 @@ const char* MY_CDECL main_GetStream
   catch(const UString &s)
   {
     (*g_StdStream) << kExceptionErrorMessage << s << endl;
-    return "FatalError";
   }
   catch(const AString &s)
   {
     (*g_StdStream) << kExceptionErrorMessage << s << endl;
-    return "FatalError";
   }
   catch(const char *s)
   {
     (*g_StdStream) << kExceptionErrorMessage << s << endl;
-    return "FatalError";
   }
   catch(int t)
   {
     (*g_StdStream) << kInternalExceptionMessage << t << endl;
-    return "FatalError";
   }
   catch(...)
   {
     (*g_StdStream) << kUnknownExceptionMessage;
-    return "FatalError";
   }
 
   g_StdStream->disableOutBufFlag();

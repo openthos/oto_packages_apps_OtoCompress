@@ -109,7 +109,6 @@ struct CBaseHandleWFMO // FIXME : private Uncopyable
 
   operator HANDLE() { return this; }
   virtual bool IsSignaledAndUpdate() = 0;
-  virtual ~CBaseHandleWFMO() = 0;
 };
 
 class CBaseEventWFMO : public CBaseHandleWFMO

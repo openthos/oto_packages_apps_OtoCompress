@@ -158,7 +158,7 @@ const char* executeCommandGetStream(const char* cmd) {
 
 	/** command line option error*/
 	if ((str2args(cmd, temp, &argc)) == false) {
-		return "error";
+		return "CommandError";
 	}
 
 	for (int i = 0; i < argc; i++) {

@@ -67,10 +67,8 @@ public class DecompressActivity extends BaseActivity {
         if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
-        simpleCmd.append("'-o" + mDefaultDestination + "' ");
-        simpleCmd.append("-aoa ");
+        simpleCmd.append("'-o" + mDestination + "' ");
         mUtils.initUtils(simpleCmd.toString());
-        mUtils.setDecompressInfo(mDeFileName, mDefaultDestination);
         mUtils.start();
     }
 
@@ -142,8 +140,12 @@ public class DecompressActivity extends BaseActivity {
         if (!(mDeFileName.endsWith(CompressUtils.SUFFIX_TAR)
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_GZ)
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_BZ2))) {
-            mCbPassword.setChecked(true);
-            mUtils.showSimpleAlertDialog(getString(R.string.hint_input_password));
+            if (mIsPassword) {
+                mUtils.showSimpleAlertDialog(getString(R.string.hint_wrong_password));
+            } else {
+                mCbPassword.setChecked(true);
+                mUtils.showSimpleAlertDialog(getString(R.string.hint_input_password));
+            }
         }
     }
 }

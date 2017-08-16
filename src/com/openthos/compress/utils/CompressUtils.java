@@ -26,12 +26,29 @@ public class CompressUtils {
     public static final String SUFFIX_TAR = ".tar";
     public static final String SUFFIX_GZ = ".tar.gz";
     public static final String SUFFIX_BZ2 = ".tar.bz2";
-    private static final int RET_SUCCESS = 0;
-    private static final int RET_WARNING = 1;
-    private static final int RET_FAULT = 2;
-    private static final int RET_COMMAND = 7;
-    private static final int RET_MEMORY = 8;
-    private static final int RET_USER_STOP = 255;
+    /**
+     * String: Part of detailed running result of command from jni code,
+     * which means command running infomation.
+     */
+    private static final String STRING_RESULT_SUCCESS = "Everything is Ok";
+    private static final String STRING_RESULT_REPETITION = "already exists. Overwrite with";
+    private static final String STRING_RESULT_PASSWORD = "Enter password:";
+    private static final String STRING_RESULT_WRONG_PASSWORD =
+                                "Data Error in encrypted file. Wrong password?";
+    private static final String STRING_RESULT_COMMAND = "CommandError";
+    private static final String STRING_RESULT_MEMORY = "MemoryError";
+    private static final String STRING_RESULT_USER_BREAK = "UserBreak";
+    /**
+     * int: Simple running result of command from jni code.
+     */
+    private static final int INT_RESULT_SUCCESS = 0;
+    private static final int INT_RESULT_WARNING = 1;
+    private static final int INT_RESULT_FAULT = 2;
+    private static final int INT_RESULT_COMMAND = 7;
+    private static final int INT_RESULT_MEMORY = 8;
+    private static final int INT_RESULT_REPETITION = 9;
+    private static final int INT_RESULT_PASSWORD = 10;
+    private static final int INT_RESULT_USER_BREAK = 255;
     public static final int REQUEST_CODE_DST = 1;
 
     private static final int FILE_NAME_LEGAL = 11;
@@ -46,177 +63,149 @@ public class CompressUtils {
     private Thread mThread;
     private Handler mHandler;
     private String mCommand;
-    private String mSourceName;
-    private String mDestinationPath;
     private ProgressInfoDialog mDialog;
+    private boolean mHasTemp;
 
     public CompressUtils(Context context) {
         mContext = context;
     }
 
     public void initUtils(String command) {
-        mCommand = command;
-        mDialog = ProgressInfoDialog.getInstance(mContext);
-        mDialog.setCancelable(false);
-
-        mHandler = new Handler(new Handler.Callback() {
+        mCommand = mHasTemp ? command + "-aoa" : command;
+        mHandler = new Handler() {
             @Override
-            public boolean handleMessage(Message msg) {
-                int retMsgId = R.string.msg_ret_success;
+            public void handleMessage(Message msg) {
+                int retMsgId = -1;
                 switch (msg.what) {
-                    case RET_SUCCESS:
+                    case INT_RESULT_SUCCESS:
                         retMsgId = R.string.msg_ret_success;
                         break;
-                    case RET_WARNING:
+                    case INT_RESULT_WARNING:
                         retMsgId = R.string.msg_ret_warning;
                         break;
-                    case RET_FAULT:
+                    case INT_RESULT_FAULT:
                         retMsgId = R.string.msg_ret_fault;
                         break;
-                    case RET_COMMAND:
+                    case INT_RESULT_COMMAND:
                         retMsgId = R.string.msg_ret_command;
                         break;
-                    case RET_MEMORY:
+                    case INT_RESULT_MEMORY:
                         retMsgId = R.string.msg_ret_memmory;
                         break;
-                    case RET_USER_STOP:
+                    case INT_RESULT_USER_BREAK:
                         retMsgId = R.string.msg_ret_user_stop;
                         break;
-                    default:
-                        break;
-                }
-                toast(mContext.getString(retMsgId));
-                if (msg.what == RET_SUCCESS || msg.what == RET_WARNING) {
-                    if (mContext instanceof Activity) {
-                        ((Activity) mContext).finish();
-                    }
-                } else if (msg.what == RET_FAULT && mContext instanceof DecompressActivity) {
-                    ((DecompressActivity) mContext).inputPassword();
-                }
-                return false;
-            }
-        });
-
-        mThread = new Thread() {
-            @Override
-            public void run() {
-                int ret = ZipUtils.executeCommand(CompressUtils.this.mCommand);
-                mDialog.cancel();
-                mHandler.sendEmptyMessage(ret);
-                super.run();
-            }
-        };
-    }
-
-    public void start() {
-        if (mCommand.startsWith("7z x")) {
-            new Thread() {
-
-                @Override
-                public void run() {
-                    if (!checkExist()) {
-                        ((Activity) mContext).runOnUiThread(new Runnable() {
+                    case INT_RESULT_REPETITION:
+                        DialogInterface.OnClickListener ok =
+                                new DialogInterface.OnClickListener() {
 
                             @Override
-                            public void run() {
+                            public void onClick(DialogInterface dialog, int i) {
+                                initThread();
+                                mCommand += "-aoa";
                                 mThread.start();
                                 mDialog.showDialog(R.raw.decompress);
                                 mDialog.changeTitle(mContext.getResources().
                                     getString(R.string.compress_info));
                             }
-                        });
+                        };
+                        showChooseAlertDialog(String.format(mContext.getResources().
+                           getString(R.string.dialog_decompress_text), (String) msg.obj), ok, null);
+                        break;
+                    case INT_RESULT_PASSWORD:
+                        ((DecompressActivity) mContext).inputPassword();
+                        mHasTemp = true;
+                        break;
+                }
+                if (retMsgId != -1) {
+                    toast(mContext.getString(retMsgId));
+                }
+                if (msg.what == INT_RESULT_SUCCESS || msg.what == INT_RESULT_WARNING) {
+                    if (mContext instanceof Activity) {
+                        ((Activity) mContext).finish();
                     }
                 }
-            }.start();
+                mThread = null;
+                super.handleMessage(msg);
+            }
+        };
+        initThread();
+    }
+
+    private void initThread() {
+        mThread = new Thread() {
+            @Override
+            public void run() {
+                if (mCommand.startsWith("7z x")) {
+                    String result = ZipUtils.executeCommandGetStream(mCommand);
+                    checkResult(result);
+                    mHasTemp = false;
+                } else {
+                    int ret = ZipUtils.executeCommand(mCommand);
+                    mDialog.cancel();
+                    mHandler.sendEmptyMessage(ret);
+                }
+                super.run();
+            }
+        };
+        mDialog = ProgressInfoDialog.getInstance(mContext);
+    }
+
+    private void checkResult(String result) {
+        int hintResult = -1;
+        if (!result.contains(" ")) {
+            switch (result) {
+                case STRING_RESULT_COMMAND:
+                    hintResult = INT_RESULT_COMMAND;
+                    break;
+                case STRING_RESULT_MEMORY:
+                    hintResult = INT_RESULT_MEMORY;
+                    break;
+                case STRING_RESULT_USER_BREAK:
+                    hintResult = INT_RESULT_USER_BREAK;
+                    break;
+                default:
+                    hintResult = INT_RESULT_FAULT;
+                    break;
+            }
         } else {
-            mThread.start();
-            mDialog.showDialog(R.raw.compress);
-            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
-        }
-    }
-
-    private boolean checkExist() {
-        File[] files = new File(mDestinationPath).listFiles();
-        if (files == null) {
-            return false;
-        }
-        ArrayList<String> archieveList = new ArrayList<>();
-        StringBuilder builder = new StringBuilder("7z l ");
-        builder.append("'" + mSourceName + "'");
-        String result = ZipUtils.executeCommandGetStream(builder.toString());
-        /**
-         * result eg:
-         * index   Date      Time    Attr         Size   Compressed  Name
-         * 39      ------------------- ----- ------------ ------------  ------------------------
-         * 40      2017-06-22 10:48:00 D....            0            0
-         * 41      Screenshots
-         * 42      2017-06-22 10:48:00 .....       360139       359663
-         * 43      Screenshots/Screenshot_2017-06-22-10-47-59.png
-         * 44      ------------------- ----- ------------ ------------  ------------------------
-         * 45      2017-06-22 10:48:00             360139       359663  1 files, 1 folders
-         */
-        String[] allFiles = result.split("\n");
-        for (int i = CONTENT_START_INDEX; i <= allFiles.length - CONTENT_END_INDEX; i += 2) {
-            if (allFiles[i].contains("/")) {
-                allFiles[i] = allFiles[i].replace(allFiles[i].substring(allFiles[i].indexOf("/")), "");
-                if (!archieveList.contains(allFiles[i])) {
-                    archieveList.add(allFiles[i]);
+            String[] allResult = result.split("\n");
+            for (int i = allResult.length - 1; i >= 0; i--) {
+                switch (allResult[i]) {
+                    case STRING_RESULT_SUCCESS:
+                        hintResult = INT_RESULT_SUCCESS;
+                        break;
+                    case STRING_RESULT_REPETITION:
+                        hintResult = INT_RESULT_REPETITION;
+                        mHandler.sendMessage(Message.obtain(
+                                mHandler, hintResult, allResult[i + 1]));
+                        break;
+                    case STRING_RESULT_PASSWORD:
+                        hintResult = INT_RESULT_PASSWORD;
+                        break;
+                    case STRING_RESULT_WRONG_PASSWORD:
+                        hintResult = INT_RESULT_PASSWORD;
+                        break;
                 }
-            } else {
-                archieveList.add(allFiles[i]);
-            }
-        }
-
-        for (final String s : archieveList) {
-            for (File file : files) {
-                if (file.getName().equals(s)) {
-                    ((Activity) mContext).runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            DialogInterface.OnClickListener ok =
-                                    new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int i) {
-                                    mThread.start();
-                                    mDialog.showDialog(R.raw.decompress);
-                                    mDialog.changeTitle(mContext.getResources().
-                                        getString(R.string.compress_info));
-                                }
-                            };
-                            showChooseAlertDialog(String.format(mContext.getResources().
-                                getString(R.string.dialog_decompress_text), s), ok, null);
-                        }
-                    });
-                    return true;
+                if (hintResult != -1) {
+                    break;
                 }
             }
         }
-        return false;
+        mDialog.cancel();
+        if (hintResult == -1) {
+            hintResult = INT_RESULT_SUCCESS;
+        }
+        if (hintResult != INT_RESULT_REPETITION) {
+            mHandler.sendEmptyMessage(hintResult);
+        }
     }
 
-    public void setDecompressInfo(String name, String path) {
-        mSourceName = name;
-        mDestinationPath = path;
+    public void start() {
+        mThread.start();
+        mDialog.showDialog(R.raw.compress);
+        mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
     }
-
-    /*public boolean checkPath(String path) {
-        File file = new File(path);
-        if (!file.exists()) {
-            toast(mContext.getString(R.string.path_not_exist));
-            return false;
-        }
-        if (!file.isDirectory()) {
-            toast(mContext.getString(R.string.path_not_directory));
-            return false;
-        }
-        if (!file.canWrite()) {
-            toast(mContext.getString(R.string.path_not_permission));
-            return false;
-        }
-        return true;
-    }*/
 
     public void checkFileName(String path, String name) {
         if (new File(path).exists()) {
@@ -272,7 +261,7 @@ public class CompressUtils {
                 .setMessage(message)
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), ok)
                 .setNegativeButton(mContext.getResources().getString(R.string.cancel), cancel)
-                .setCancelable(false)
+                .setCancelable(true)
                 .create();
         dialog.show();
     }
@@ -281,7 +270,7 @@ public class CompressUtils {
         AlertDialog dialog = new AlertDialog.Builder(mContext)
                 .setMessage(message)
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), null)
-                .setCancelable(false)
+                .setCancelable(true)
                 .create();
         dialog.show();
     }

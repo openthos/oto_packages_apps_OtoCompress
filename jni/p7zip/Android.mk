@@ -16,6 +16,7 @@ LOCAL_C_INCLUDES := \
 	$(MY_CPP_PATH)/include_windows \
 
 LOCAL_MODULE := p7zip
+LOCAL_C_INCLUDES += $(JNI_H_INCLUDE)
 
 LOCAL_CFLAGS := \
 	-DANDROID_NDK \
@@ -180,5 +181,8 @@ LOCAL_SRC_FILES += \
 	CPP/myWindows/wine_date_and_time.cpp
 
 LOCAL_LDLIBS := -llog
+
 include $(BUILD_SHARED_LIBRARY)
 
+include $(call all-makefiles-under,$(LOCAL_PATH))
+#end
