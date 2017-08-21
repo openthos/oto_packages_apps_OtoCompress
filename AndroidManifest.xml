@@ -40,6 +40,17 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-7z-compressed" />
+                <data android:mimeType="application/ocelet-stream" />
+                <data android:mimeType="application/x-tar" />
+                <data android:mimeType="application/x-gzip" />
+                <data android:mimeType="application/x-bzip2" />
+            </intent-filter>
         </activity>
         <activity android:name=".FileChooseActivity"></activity>
     </application>

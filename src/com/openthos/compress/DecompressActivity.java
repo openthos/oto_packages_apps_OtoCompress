@@ -42,7 +42,7 @@ public class DecompressActivity extends BaseActivity {
     @Override
     protected void initData() {
         mUtils = new CompressUtils(this);
-        mDeFileName = getIntent().getStringExtra(CompressUtils.COMPRESS_FILE_PATH);
+        mDeFileName = getIntent().getData().getPath();
         if (mDeFileName != null) {
             mTvDecompress.setText(mDeFileName);
             mDefaultDestination = mDeFileName.substring(0, mDeFileName.lastIndexOf("/"));
