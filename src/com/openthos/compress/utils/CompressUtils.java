@@ -30,25 +30,27 @@ public class CompressUtils {
      * String: Part of detailed running result of command from jni code,
      * which means command running infomation.
      */
-    private static final String STRING_RESULT_SUCCESS = "Everything is Ok";
-    private static final String STRING_RESULT_REPETITION = "already exists. Overwrite with";
-    private static final String STRING_RESULT_PASSWORD = "Enter password:";
-    private static final String STRING_RESULT_WRONG_PASSWORD =
+    private static final String TEXT_SUCCESS = "Everything is Ok";
+    private static final String TEXT_REPETITION = "already exists. Overwrite with";
+    private static final String TEXT_INPUT_PASSWORD = "Enter password:";
+    private static final String TEXT_WRONG_PASSWORD =
                                 "Data Error in encrypted file. Wrong password?";
-    private static final String STRING_RESULT_COMMAND = "CommandError";
-    private static final String STRING_RESULT_MEMORY = "MemoryError";
-    private static final String STRING_RESULT_USER_BREAK = "UserBreak";
+    private static final String TEXT_COMMAND_ERROR = "CommandError";
+    private static final String TEXT_MEMORY_ERROR = "MemoryError";
+    private static final String TEXT_USER_BREAK = "UserBreak";
     /**
      * int: Simple running result of command from jni code.
      */
-    private static final int INT_RESULT_SUCCESS = 0;
-    private static final int INT_RESULT_WARNING = 1;
-    private static final int INT_RESULT_FAULT = 2;
-    private static final int INT_RESULT_COMMAND = 7;
-    private static final int INT_RESULT_MEMORY = 8;
-    private static final int INT_RESULT_REPETITION = 9;
-    private static final int INT_RESULT_PASSWORD = 10;
-    private static final int INT_RESULT_USER_BREAK = 255;
+    private static final int SUCCESS = 0;
+    private static final int WARNING = 1;
+    private static final int FAULT = 2;
+    private static final int INPUT_PASSWORD = 3;
+    private static final int WRONG_PASSWORD = 4;
+    private static final int CORRECT_PASSWORD = 5;
+    private static final int COMMAND_ERROR = 7;
+    private static final int MEMORY_ERROR = 8;
+    private static final int REPETITION = 9;
+    private static final int USER_BREAK = 255;
     public static final int REQUEST_CODE_DST = 1;
 
     private static final int FILE_NAME_LEGAL = 11;
@@ -64,38 +66,39 @@ public class CompressUtils {
     private Handler mHandler;
     private String mCommand;
     private ProgressInfoDialog mDialog;
-    private boolean mHasTemp;
+    private boolean mIsValidity;
 
     public CompressUtils(Context context) {
         mContext = context;
     }
 
     public void initUtils(String command) {
-        mCommand = mHasTemp ? command + "-aoa" : command;
+        mIsValidity = false;
+        mCommand = command;
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 int retMsgId = -1;
                 switch (msg.what) {
-                    case INT_RESULT_SUCCESS:
+                    case SUCCESS:
                         retMsgId = R.string.msg_ret_success;
                         break;
-                    case INT_RESULT_WARNING:
+                    case WARNING:
                         retMsgId = R.string.msg_ret_warning;
                         break;
-                    case INT_RESULT_FAULT:
+                    case FAULT:
                         retMsgId = R.string.msg_ret_fault;
                         break;
-                    case INT_RESULT_COMMAND:
+                    case COMMAND_ERROR:
                         retMsgId = R.string.msg_ret_command;
                         break;
-                    case INT_RESULT_MEMORY:
+                    case MEMORY_ERROR:
                         retMsgId = R.string.msg_ret_memmory;
                         break;
-                    case INT_RESULT_USER_BREAK:
+                    case USER_BREAK:
                         retMsgId = R.string.msg_ret_user_stop;
                         break;
-                    case INT_RESULT_REPETITION:
+                    case REPETITION:
                         DialogInterface.OnClickListener ok =
                                 new DialogInterface.OnClickListener() {
 
@@ -103,24 +106,28 @@ public class CompressUtils {
                             public void onClick(DialogInterface dialog, int i) {
                                 initThread();
                                 mCommand += "-aoa";
-                                mThread.start();
-                                mDialog.showDialog(R.raw.decompress);
-                                mDialog.changeTitle(mContext.getResources().
-                                    getString(R.string.compress_info));
+                                start();
                             }
                         };
                         showChooseAlertDialog(String.format(mContext.getResources().
                            getString(R.string.dialog_decompress_text), (String) msg.obj), ok, null);
                         break;
-                    case INT_RESULT_PASSWORD:
-                        ((DecompressActivity) mContext).inputPassword();
-                        mHasTemp = true;
+                    case INPUT_PASSWORD:
+                        ((DecompressActivity) mContext).inputPassword(true);
+                        break;
+                    case WRONG_PASSWORD:
+                        ((DecompressActivity) mContext).inputPassword(false);
+                        break;
+                    case CORRECT_PASSWORD:
+                        mIsValidity = true;
+                        initThread();
+                        start();
                         break;
                 }
                 if (retMsgId != -1) {
                     toast(mContext.getString(retMsgId));
                 }
-                if (msg.what == INT_RESULT_SUCCESS || msg.what == INT_RESULT_WARNING) {
+                if (msg.what == SUCCESS || msg.what == WARNING) {
                     if (mContext instanceof Activity) {
                         ((Activity) mContext).finish();
                     }
@@ -133,13 +140,20 @@ public class CompressUtils {
     }
 
     private void initThread() {
+        mThread = null;
         mThread = new Thread() {
             @Override
             public void run() {
-                if (mCommand.startsWith("7z x")) {
-                    String result = ZipUtils.executeCommandGetStream(mCommand);
-                    checkResult(result);
-                    mHasTemp = false;
+                if (mCommand.startsWith("7z t")) {
+                    if (mIsValidity) {
+                        mCommand = mCommand.replaceFirst("t", "x");
+                        String result = ZipUtils.executeCommandGetStream(mCommand);
+                        mDialog.cancel();
+                        checkRepetition(result);
+                    } else {
+                        String results = ZipUtils.executeCommandGetStream(mCommand);
+                        checkPassword(results);
+                    }
                 } else {
                     int ret = ZipUtils.executeCommand(mCommand);
                     mDialog.cancel();
@@ -151,60 +165,63 @@ public class CompressUtils {
         mDialog = ProgressInfoDialog.getInstance(mContext);
     }
 
-    private void checkResult(String result) {
-        int hintResult = -1;
+    private void checkPassword(String result) {
+        String[] allResult = result.split("\n");
+        for (int i = 0; i <= allResult.length - 1; i++) {
+            switch (allResult[i]) {
+                case TEXT_INPUT_PASSWORD:
+                    mHandler.sendEmptyMessage(INPUT_PASSWORD);
+                    return;
+                case TEXT_WRONG_PASSWORD:
+                    mHandler.sendEmptyMessage(WRONG_PASSWORD);
+                    return;
+            }
+        }
+        mHandler.sendEmptyMessage(CORRECT_PASSWORD);
+    }
+
+    private void checkRepetition(String result) {
         if (!result.contains(" ")) {
             switch (result) {
-                case STRING_RESULT_COMMAND:
-                    hintResult = INT_RESULT_COMMAND;
-                    break;
-                case STRING_RESULT_MEMORY:
-                    hintResult = INT_RESULT_MEMORY;
-                    break;
-                case STRING_RESULT_USER_BREAK:
-                    hintResult = INT_RESULT_USER_BREAK;
-                    break;
+                case TEXT_COMMAND_ERROR:
+                    mHandler.sendEmptyMessage(COMMAND_ERROR);
+                    return;
+                case TEXT_MEMORY_ERROR:
+                    mHandler.sendEmptyMessage(MEMORY_ERROR);
+                    return;
+                case TEXT_USER_BREAK:
+                    mHandler.sendEmptyMessage(USER_BREAK);
+                    return;
                 default:
-                    hintResult = INT_RESULT_FAULT;
-                    break;
+                    mHandler.sendEmptyMessage(FAULT);
+                    return;
             }
         } else {
             String[] allResult = result.split("\n");
             for (int i = allResult.length - 1; i >= 0; i--) {
                 switch (allResult[i]) {
-                    case STRING_RESULT_SUCCESS:
-                        hintResult = INT_RESULT_SUCCESS;
-                        break;
-                    case STRING_RESULT_REPETITION:
-                        hintResult = INT_RESULT_REPETITION;
+                    case TEXT_SUCCESS:
+                        mHandler.sendEmptyMessage(SUCCESS);
+                        return;
+                    case TEXT_REPETITION:
                         mHandler.sendMessage(Message.obtain(
-                                mHandler, hintResult, allResult[i + 1]));
-                        break;
-                    case STRING_RESULT_PASSWORD:
-                        hintResult = INT_RESULT_PASSWORD;
-                        break;
-                    case STRING_RESULT_WRONG_PASSWORD:
-                        hintResult = INT_RESULT_PASSWORD;
-                        break;
-                }
-                if (hintResult != -1) {
-                    break;
+                                mHandler, REPETITION, allResult[i + 1]));
+                        return;
                 }
             }
         }
-        mDialog.cancel();
-        if (hintResult == -1) {
-            hintResult = INT_RESULT_SUCCESS;
-        }
-        if (hintResult != INT_RESULT_REPETITION) {
-            mHandler.sendEmptyMessage(hintResult);
-        }
+        mHandler.sendEmptyMessage(SUCCESS);
     }
 
     public void start() {
         mThread.start();
-        mDialog.showDialog(R.raw.compress);
-        mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
+        if (mIsValidity) {
+            mDialog.showDialog(R.raw.decompress);
+            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
+        } else if (mCommand.startsWith("7z a")) {
+            mDialog.showDialog(R.raw.compress);
+            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
+        }
     }
 
     public void checkFileName(String path, String name) {

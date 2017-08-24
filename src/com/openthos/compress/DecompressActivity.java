@@ -62,7 +62,7 @@ public class DecompressActivity extends BaseActivity {
 
     @Override
     protected void startCommand() {
-        StringBuilder simpleCmd = new StringBuilder("7z x ");
+        StringBuilder simpleCmd = new StringBuilder("7z t ");
         simpleCmd.append("'" + mDeFileName + "' ");
         if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
@@ -136,15 +136,15 @@ public class DecompressActivity extends BaseActivity {
         }
     }
 
-    public void inputPassword() {
+    public void inputPassword(boolean input) {
         if (!(mDeFileName.endsWith(CompressUtils.SUFFIX_TAR)
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_GZ)
                 || mDeFileName.endsWith(CompressUtils.SUFFIX_BZ2))) {
-            if (mIsPassword) {
-                mUtils.showSimpleAlertDialog(getString(R.string.hint_wrong_password));
-            } else {
+            if (input) {
                 mCbPassword.setChecked(true);
                 mUtils.showSimpleAlertDialog(getString(R.string.hint_input_password));
+            } else {
+                mUtils.showSimpleAlertDialog(getString(R.string.hint_wrong_password));
             }
         }
     }
