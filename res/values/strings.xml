@@ -29,7 +29,7 @@
     <string name="file_name_illegal">File name has illegal character /</string>
     <string name="file_name_warning">Warning:\nAvoid containing these chractors: @ # $ ^ &amp; * ( ) [ ].\nDo you determine use this file name?</string>
     <string name="compress_info">Do in progress...</string>
-    <string name="filename_aready_exists">This file name is aready exists.</string>
+    <string name="filename_aready_exists">This file name is aready exists, please re-input.</string>
     <string name="hint_input_password">Encrypted file.\nPlease enter password.</string>
     <string name="hint_wrong_password">Password is incorrect.\nPlease re-enter password.</string>
     <string name="dialog_decompress_text">"%1$s" is already exists at Desktop, whether to decompress (which will cover the duplicate file)?</string>

@@ -68,7 +68,7 @@ public class DecompressActivity extends BaseActivity {
             simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
         }
         simpleCmd.append("'-o" + mDestination + "' ");
-        mUtils.initUtils(simpleCmd.toString());
+        mUtils.initUtils(new String[]{simpleCmd.toString()});
         mUtils.start();
     }
 

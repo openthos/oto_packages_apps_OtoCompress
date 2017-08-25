@@ -115,21 +115,27 @@ public class CompressActivity extends BaseActivity {
 
     @Override
     protected void startCommand() {
-        StringBuilder simpleCmd = new StringBuilder("7z a ");
-        simpleCmd.append("'" + mDestination + File.separator + mEtFileName.getText().toString() +
-                mFileTypes[mSpType.getSelectedItemPosition()] + "' ");
-        simpleCmd.append("'");
-        for (int i = 0; i < mCompressList.size() - 1; i++) {
-            simpleCmd.append(mCompressList.get(i) + "' '");
-        }
-        simpleCmd.append(mCompressList.get(mCompressList.size() - 1) + "' ");
-        if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
-            simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
-        }
-        mUtils.initUtils(simpleCmd.toString());
-        mUtils.checkFileName(mDestination + File.separator +
-                mEtFileName.getText().toString() + mFileTypes[mSpType.getSelectedItemPosition()],
-                mEtFileName.getText().toString());
+        int num = (mCompressList.size() % 20 == 0) ?
+                  (mCompressList.size() / 20) : (mCompressList.size() / 20 + 1);
+        String[] commands = new String[num];
+        for (int i = 0; i < num; i++) {
+            StringBuilder simpleCmd = new StringBuilder("7z a ");
+            simpleCmd.append("'" + mDestination + File.separator + mEtFileName.getText().toString() +
+                    mFileTypes[mSpType.getSelectedItemPosition()]);
+            int count = (i == (num -1)) ? (mCompressList.size() - 20 * i) : 20;
+            for (int j = 0; j < count; j++) {
+                simpleCmd.append("' '" + mCompressList.get(20 * i + j));
+            }
+            simpleCmd.append("' ");
+            if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
+                simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
+            }
+            commands[i] = simpleCmd.toString();
+         }
+         mUtils.initUtils(commands);
+         mUtils.checkFileName(mDestination + File.separator +
+                 mEtFileName.getText().toString() + mFileTypes[mSpType.getSelectedItemPosition()],
+                 mEtFileName.getText().toString());
     }
 
     private void startFileChooser(int filter, int requestCode) {

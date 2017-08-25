@@ -64,7 +64,7 @@ public class CompressUtils {
     private Context mContext;
     private Thread mThread;
     private Handler mHandler;
-    private String mCommand;
+    private String[] mCommands;
     private ProgressInfoDialog mDialog;
     private boolean mIsValidity;
 
@@ -72,9 +72,9 @@ public class CompressUtils {
         mContext = context;
     }
 
-    public void initUtils(String command) {
+    public void initUtils(String[] command) {
         mIsValidity = false;
-        mCommand = command;
+        mCommands = command;
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -105,7 +105,7 @@ public class CompressUtils {
                             @Override
                             public void onClick(DialogInterface dialog, int i) {
                                 initThread();
-                                mCommand += "-aoa";
+                                mCommands[0] += "-aoa";
                                 start();
                             }
                         };
@@ -144,18 +144,25 @@ public class CompressUtils {
         mThread = new Thread() {
             @Override
             public void run() {
-                if (mCommand.startsWith("7z t")) {
+                if (mCommands[0].startsWith("7z t")) {
                     if (mIsValidity) {
-                        mCommand = mCommand.replaceFirst("t", "x");
-                        String result = ZipUtils.executeCommandGetStream(mCommand);
+                        mCommands[0] = mCommands[0].replaceFirst("t", "x");
+                        String result = ZipUtils.executeCommandGetStream(mCommands[0]);
                         mDialog.cancel();
                         checkRepetition(result);
                     } else {
-                        String results = ZipUtils.executeCommandGetStream(mCommand);
+                        String results = ZipUtils.executeCommandGetStream(mCommands[0]);
                         checkPassword(results);
                     }
                 } else {
-                    int ret = ZipUtils.executeCommand(mCommand);
+                    int ret = SUCCESS;
+                    for (int i = 0; i < mCommands.length; i++) {
+                        ret = ZipUtils.executeCommand(mCommands[i]);
+                        if (ret != SUCCESS) {
+                            break;
+                        }
+                    }
+
                     mDialog.cancel();
                     mHandler.sendEmptyMessage(ret);
                 }
@@ -218,7 +225,7 @@ public class CompressUtils {
         if (mIsValidity) {
             mDialog.showDialog(R.raw.decompress);
             mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
-        } else if (mCommand.startsWith("7z a")) {
+        } else if (mCommands[0].startsWith("7z a")) {
             mDialog.showDialog(R.raw.compress);
             mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
         }
