@@ -1,13 +1,12 @@
 package com.openthos.compress;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -16,10 +15,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.AdapterView;
-import android.text.TextUtils;
 
-import com.openthos.compress.utils.CompressUtils;
+import com.openthos.compress.bean.CommandLineBean;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,13 +34,12 @@ public class CompressActivity extends BaseActivity {
     private ButtonClickListener mClickListener;
     private CheckBoxChangeListener mCheckedListener;
     private TypeSelectedListener mSelectedListener;
-
     private List<String> mCompressList;
     private ArrayAdapter mCompressAdapter;
-
     private String[] mFileTypes;
     private boolean mIsPassword;
     private ArrayAdapter mTypeAdapter;
+    private CommandLineBean mCmdObj;
 
     @Override
     protected void initView() {
@@ -63,7 +59,6 @@ public class CompressActivity extends BaseActivity {
     protected void initData() {
         mUtils = new CompressUtils(this);
         mCompressList = new ArrayList<>();
-        mCompressList.clear();
         String path = getIntent().getStringExtra(CompressUtils.COMPRESS_FILE_PATH);
         if (path != null) {
             String[] paths = path.split(CompressUtils.EXTRA_DELETE_FILE_HEADER);
@@ -80,7 +75,7 @@ public class CompressActivity extends BaseActivity {
             if (mCompressList.size() > LIMIT_FILES_NUM) {
                 params.height = LIMIT_FILES_HEIGHT;
             } else {
-                params.height = (int) (mListView.getDividerHeight() * (mCompressList.size() -1) +
+                params.height = (int) (mListView.getDividerHeight() * (mCompressList.size() - 1) +
                         getResources().getDimension(R.dimen.item_height) * mCompressList.size());
             }
             mListView.setLayoutParams(params);
@@ -115,27 +110,16 @@ public class CompressActivity extends BaseActivity {
 
     @Override
     protected void startCommand() {
-        int num = (mCompressList.size() % 20 == 0) ?
-                  (mCompressList.size() / 20) : (mCompressList.size() / 20 + 1);
-        String[] commands = new String[num];
-        for (int i = 0; i < num; i++) {
-            StringBuilder simpleCmd = new StringBuilder("7z a ");
-            simpleCmd.append("'" + mDestination + File.separator + mEtFileName.getText().toString() +
-                    mFileTypes[mSpType.getSelectedItemPosition()]);
-            int count = (i == (num -1)) ? (mCompressList.size() - 20 * i) : 20;
-            for (int j = 0; j < count; j++) {
-                simpleCmd.append("' '" + mCompressList.get(20 * i + j));
-            }
-            simpleCmd.append("' ");
-            if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
-                simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
-            }
-            commands[i] = simpleCmd.toString();
-         }
-         mUtils.initUtils(commands);
-         mUtils.checkFileName(mDestination + File.separator +
-                 mEtFileName.getText().toString() + mFileTypes[mSpType.getSelectedItemPosition()],
-                 mEtFileName.getText().toString());
+        String fileName = mEtFileName.getText().toString();
+        String fileType = mFileTypes[mSpType.getSelectedItemPosition()];
+        mCmdObj = new CommandLineBean(mDestPath, fileName, fileType, mCompressList);
+        mCmdObj.setOperation(CommandLineBean.OPERATION_COMPRESS);
+        mCmdObj.setDestTotalName(mDestPath + File.separator + fileName + fileType);
+        if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
+            mCmdObj.setPassword(mEtPassword.getText().toString());
+        }
+        mUtils.initUtils(mCmdObj.toString().split(","));
+        mUtils.checkFileName(mCmdObj.getDestTotalName(), fileName);
     }
 
     private void startFileChooser(int filter, int requestCode) {
@@ -222,6 +206,4 @@ public class CompressActivity extends BaseActivity {
 
         }
     }
-
-
 }

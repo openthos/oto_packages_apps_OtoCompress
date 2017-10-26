@@ -35,4 +35,22 @@
     <string name="dialog_decompress_text">"%1$s" 已经存在，是否继续解压缩（将会覆盖重名文件）？</string>
     <string name="exit_promt">确定要退出应用吗？</string>
     <string name="hint_no_permission">您没有目标路径的操作权限。</string>
+    <string name="browse">浏览内容</string>
+    <string name="extract">解压</string>
+    <string name="add">添加</string>
+    <string name="current_path">当前位置:</string>
+    <string name="name">名称</string>
+    <string name="size">大小</string>
+    <string name="compressed_size">压缩后大小</string>
+    <string name="type">类型</string>
+    <string name="modified_time">修改时间</string>
+    <string name="count">总计：</string>
+    <string name="file">文件</string>
+    <string name="files">文件</string>
+    <string name="folder">文件夹</string>
+    <string name="folders">文件夹</string>
+    <string name="str_byte">字节</string>
+    <string name="empty_str"></string>
+    <string name="file_name">fileName</string>
+    <string name="extract_all">全部解压</string>
 </resources>

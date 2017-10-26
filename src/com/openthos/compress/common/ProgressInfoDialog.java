@@ -1,5 +1,6 @@
-package com.openthos.compress.utils;
+package com.openthos.compress.common;
 
+import android.app.Application;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.openthos.compress.R;
+
 
 /**
  * Created by xu on 2016/12/06.
@@ -29,10 +31,9 @@ public class ProgressInfoDialog extends Dialog {
 
     public static ProgressInfoDialog getInstance(Context context) {
         if (dialog == null) {
-            return new ProgressInfoDialog(context);
-        } else {
-            return dialog;
+            dialog = new ProgressInfoDialog(context);
         }
+        return dialog;
     }
 
     @Override
@@ -44,14 +45,17 @@ public class ProgressInfoDialog extends Dialog {
         mTextMessage = (TextView) v.findViewById(R.id.text_message);
         mTextTitle = (TextView) v.findViewById(R.id.text_title);
         mGif = (GifView) v.findViewById(R.id.gif);
+        mGif.setMovieResource(R.raw.compress);
         mTextTitle.setText(mContext.getString(R.string.compress_info));
+        setCancelable(false);
+        setCanceledOnTouchOutside(false);
     }
 
     public void showDialog(int rawId) {
         mRawId = rawId;
         if (mGif == null) {
             mGif = (GifView) View.inflate(mContext, R.layout.dialog_progress, null)
-                                     .findViewById(R.id.gif);
+                    .findViewById(R.id.gif);
         }
         mGif.setMovieResource(mRawId);
         Window dialogWindow = getWindow();
@@ -65,9 +69,15 @@ public class ProgressInfoDialog extends Dialog {
     public void changeTitle(final String s) {
         if (mGif == null) {
             mGif = (GifView) View.inflate(mContext, R.layout.dialog_progress, null)
-                                     .findViewById(R.id.gif);
+                    .findViewById(R.id.gif);
+            mGif.setMovieResource(mRawId);
         }
-        mGif.setMovieResource(mRawId);
         mTextTitle.setText(s);
+    }
+
+    @Override
+    public void cancel() {
+        super.cancel();
+        dialog = null;
     }
 }

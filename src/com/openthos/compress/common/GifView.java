@@ -1,4 +1,4 @@
-package com.openthos.compress.utils;
+package com.openthos.compress.common;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.openthos.compress.R;
+
 
 public class GifView extends View {
 

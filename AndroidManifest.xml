@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.openthos.compress"
-    android:sharedUserId="android.uid.system">
+
+    package="com.openthos.compress">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE">
@@ -20,13 +19,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            </intent-filter>
-        </activity>
         <activity android:name=".CompressActivity">
             <intent-filter>
                 <action android:name="com.openthos.compress.compress" />
@@ -40,18 +32,25 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        <activity android:name=".FileChooseActivity"/>
+        <activity android:name=".ArchiveBrowserActivity">
+            <intent-filter>
+                <action android:name="com.openthos.compress.archivebrowser"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:mimeType="application/zip" />
                 <data android:mimeType="application/x-7z-compressed" />
+                <data android:mimeType="application/x-rar-compressed" />
                 <data android:mimeType="application/ocelet-stream" />
                 <data android:mimeType="application/x-tar" />
                 <data android:mimeType="application/x-gzip" />
                 <data android:mimeType="application/x-bzip2" />
             </intent-filter>
         </activity>
-        <activity android:name=".FileChooseActivity"></activity>
     </application>
+
 </manifest>

@@ -9,7 +9,7 @@
 #include "MyTypes.h"
 #include "jni/JniWrapper.h"
 
-#define OUTBUFLEN 8192
+#define OUTBUFLEN 1024*1024*2
 
 class CStdOutStream
 {

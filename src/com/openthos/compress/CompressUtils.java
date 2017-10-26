@@ -1,5 +1,6 @@
-package com.openthos.compress.utils;
+package com.openthos.compress;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -7,16 +8,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.widget.Toast;
-import android.app.Activity;
 
-import com.openthos.compress.CompressActivity;
-import com.openthos.compress.DecompressActivity;
-import com.openthos.compress.R;
 import com.hu.p7zip.ZipUtils;
+import com.openthos.compress.common.ProgressInfoDialog;
 
 import java.io.File;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
 
 public class CompressUtils {
 
@@ -32,9 +29,8 @@ public class CompressUtils {
      */
     private static final String TEXT_SUCCESS = "Everything is Ok";
     private static final String TEXT_REPETITION = "already exists. Overwrite with";
-    private static final String TEXT_INPUT_PASSWORD = "Enter password:";
-    private static final String TEXT_WRONG_PASSWORD =
-                                "Data Error in encrypted file. Wrong password?";
+    public static final String TEXT_INPUT_PASSWORD = "Enter password";
+    public static final String TEXT_WRONG_PASSWORD = "Wrong password";
     private static final String TEXT_COMMAND_ERROR = "CommandError";
     private static final String TEXT_MEMORY_ERROR = "MemoryError";
     private static final String TEXT_USER_BREAK = "UserBreak";
@@ -102,15 +98,15 @@ public class CompressUtils {
                         DialogInterface.OnClickListener ok =
                                 new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                initThread();
-                                mCommands[0] += "-aoa";
-                                start();
-                            }
-                        };
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int i) {
+                                        initThread();
+                                        mCommands[0] += " -aoa";
+                                        start();
+                                    }
+                                };
                         showChooseAlertDialog(String.format(mContext.getResources().
-                           getString(R.string.dialog_decompress_text), (String) msg.obj), ok, null);
+                                getString(R.string.dialog_decompress_text), (String) msg.obj), ok, null);
                         break;
                     case INPUT_PASSWORD:
                         ((DecompressActivity) mContext).inputPassword(true);
@@ -173,16 +169,13 @@ public class CompressUtils {
     }
 
     private void checkPassword(String result) {
-        String[] allResult = result.split("\n");
-        for (int i = 0; i <= allResult.length - 1; i++) {
-            switch (allResult[i]) {
-                case TEXT_INPUT_PASSWORD:
-                    mHandler.sendEmptyMessage(INPUT_PASSWORD);
-                    return;
-                case TEXT_WRONG_PASSWORD:
-                    mHandler.sendEmptyMessage(WRONG_PASSWORD);
-                    return;
-            }
+        if (result.contains(TEXT_INPUT_PASSWORD)) {
+            mHandler.sendEmptyMessage(INPUT_PASSWORD);
+            return;
+        }
+        if (result.contains(TEXT_WRONG_PASSWORD)) {
+            mHandler.sendEmptyMessage(WRONG_PASSWORD);
+            return;
         }
         mHandler.sendEmptyMessage(CORRECT_PASSWORD);
     }
@@ -254,7 +247,7 @@ public class CompressUtils {
                     }
                 };
                 showChooseAlertDialog(
-                    mContext.getResources().getString(R.string.file_name_warning), ok, null);
+                        mContext.getResources().getString(R.string.file_name_warning), ok, null);
         }
         if (isNameLegal) {
             start();
@@ -280,7 +273,8 @@ public class CompressUtils {
     }
 
     public void showChooseAlertDialog(String message,
-                       DialogInterface.OnClickListener ok, DialogInterface.OnClickListener cancel) {
+                                      DialogInterface.OnClickListener ok,
+                                      DialogInterface.OnClickListener cancel) {
         AlertDialog dialog = new AlertDialog.Builder(mContext)
                 .setMessage(message)
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), ok)
@@ -290,7 +284,7 @@ public class CompressUtils {
         dialog.show();
     }
 
-    public void showSimpleAlertDialog(String  message) {
+    public void showSimpleAlertDialog(String message) {
         AlertDialog dialog = new AlertDialog.Builder(mContext)
                 .setMessage(message)
                 .setPositiveButton(mContext.getResources().getString(R.string.confirm), null)

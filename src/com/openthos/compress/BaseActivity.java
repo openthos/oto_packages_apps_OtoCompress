@@ -8,14 +8,12 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.EditText;
 
-import com.openthos.compress.utils.CompressUtils;
-
 import java.io.File;
 import java.io.IOException;
 
 public abstract class BaseActivity extends Activity {
     public boolean mIsUserVersion;
-    public String mDestination;
+    public String mDestPath;
     public String mDefaultDestination;
     public CompressUtils mUtils;
 
@@ -31,12 +29,12 @@ public abstract class BaseActivity extends Activity {
     }
 
     public void checkDestination(EditText editText) {
-        mDestination = editText.getText().toString();
-        if (TextUtils.isEmpty(mDestination)) {
-            mDestination = mDefaultDestination;
+        mDestPath = editText.getText().toString();
+        if (TextUtils.isEmpty(mDestPath)) {
+            mDestPath = mDefaultDestination;
         }
         try {
-            File file = new File(mDestination);
+            File file = new File(mDestPath);
             if (mIsUserVersion && !file.getCanonicalPath().startsWith(CompressUtils.SDCARD_PATH)) {
                 mUtils.toast(getString(R.string.hint_no_permission));
             } else {

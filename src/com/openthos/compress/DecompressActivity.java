@@ -1,9 +1,8 @@
 package com.openthos.compress;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -12,9 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.text.TextUtils;
 
-import com.openthos.compress.utils.CompressUtils;
+import com.openthos.compress.bean.CommandLineBean;
 
 public class DecompressActivity extends BaseActivity {
 
@@ -24,8 +22,11 @@ public class DecompressActivity extends BaseActivity {
     private CheckBox mCbPassword, mCbShowPwd;
     private CheckBoxChangeListener mCheckedListener;
     private ButtonClickListener mClickListener;
-    private boolean mIsPassword;
+    private boolean mIsPassword, mCbPwChecked;
     private String mDeFileName;
+    private String mSpecificFile;
+
+    private CommandLineBean mCmdObj;
 
     @Override
     protected void initView() {
@@ -48,6 +49,15 @@ public class DecompressActivity extends BaseActivity {
             mDefaultDestination = mDeFileName.substring(0, mDeFileName.lastIndexOf("/"));
             mEtDestination.setText(mDefaultDestination);
         }
+        String password = getIntent().getStringExtra(ArchiveBrowserActivity.PASSWORD);
+        if (!TextUtils.isEmpty(password)) {
+            mCbPwChecked = true;
+            mEtPassword.setText(password);
+        }
+        mSpecificFile = getIntent().getStringExtra(ArchiveBrowserActivity.SPECIFIC_FILE_NAME);
+        if (!TextUtils.isEmpty(mSpecificFile)) {
+            mTvDecompress.setText(mTvDecompress.getText().toString() + "/" + mSpecificFile);
+        }
     }
 
     @Override
@@ -58,17 +68,20 @@ public class DecompressActivity extends BaseActivity {
         mBtDecompress.setOnClickListener(mClickListener);
         mCbPassword.setOnCheckedChangeListener(mCheckedListener);
         mCbShowPwd.setOnCheckedChangeListener(mCheckedListener);
+        mCbPassword.setChecked(mCbPwChecked);
     }
 
     @Override
     protected void startCommand() {
-        StringBuilder simpleCmd = new StringBuilder("7z t ");
-        simpleCmd.append("'" + mDeFileName + "' ");
+        mCmdObj = new CommandLineBean(mDestPath, mDeFileName);
+        mCmdObj.setOperation(CommandLineBean.OPERATION_DECOMPRESS);
         if (mIsPassword && !TextUtils.isEmpty(mEtPassword.getText().toString())) {
-            simpleCmd.append("'-p" + mEtPassword.getText().toString() + "' ");
+            mCmdObj.setPassword(mEtPassword.getText().toString());
         }
-        simpleCmd.append("'-o" + mDestination + "' ");
-        mUtils.initUtils(new String[]{simpleCmd.toString()});
+        if (!TextUtils.isEmpty(mSpecificFile)) {
+            mCmdObj.setSpecificFile(mSpecificFile);
+        }
+        mUtils.initUtils(new String[]{mCmdObj.toString()});
         mUtils.start();
     }
 

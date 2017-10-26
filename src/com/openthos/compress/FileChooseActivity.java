@@ -1,8 +1,6 @@
 package com.openthos.compress;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.View;
@@ -13,9 +11,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.openthos.compress.adapter.FileListAdapter;
-import com.openthos.compress.utils.CompressUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -31,19 +26,15 @@ public class FileChooseActivity extends BaseActivity {
     private LinearLayout mLlBottom;
     private Button mBtConfirm;
     private Button mBtCancel;
-
     private ArrayList<File> mFileList;
     private FileListAdapter mAdapter;
-
     private File mCurrentDir;
     private boolean mIsRoot;
     private boolean mChooseDir;
     private boolean mChooseFile;
     private boolean mChooseMulti;
-
     public static final String STRING_FILTER = "filter_name";
     public static final String STRING_RETURN = "return_string";
-
     public static final int FILTER_DIR = 0x1;
     public static final int FILTER_FILE = 0x10;
     public static final int FILTER_MULTI = 0x100;
@@ -60,7 +51,7 @@ public class FileChooseActivity extends BaseActivity {
 
     @Override
     protected void initData() {
-        mFileList = new ArrayList<File>();
+        mFileList = new ArrayList<>();
         Intent intent = getIntent();
         int filter = intent.getIntExtra(STRING_FILTER, FILTER_FILE);
         mChooseDir = (filter & FILTER_DIR) != 0;
@@ -146,7 +137,7 @@ public class FileChooseActivity extends BaseActivity {
             return;
         }
         mIsRoot = (mCurrentDir.getParent() == null)
-            || (mIsUserVersion && mCurrentDir.getAbsolutePath().equals(CompressUtils.SDCARD_PATH));
+                || (mIsUserVersion && mCurrentDir.getAbsolutePath().equals(CompressUtils.SDCARD_PATH));
         mTvFilePath.setText(mCurrentDir.getAbsolutePath());
         mFileList.clear();
         readSubFiles();

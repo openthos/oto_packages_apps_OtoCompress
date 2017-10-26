@@ -1,4 +1,4 @@
-package com.openthos.compress.adapter;
+package com.openthos.compress;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,8 +10,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.openthos.compress.R;
 
 import java.io.File;
 import java.text.DecimalFormat;
