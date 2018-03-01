@@ -10,7 +10,6 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.hu.p7zip.ZipUtils;
-import com.openthos.compress.common.ProgressInfoDialog;
 
 import java.io.File;
 import java.util.regex.Pattern;
@@ -61,7 +60,6 @@ public class CompressUtils {
     private Thread mThread;
     private Handler mHandler;
     private String[] mCommands;
-    private ProgressInfoDialog mDialog;
     private boolean mIsValidity;
 
     public CompressUtils(Context context) {
@@ -74,6 +72,9 @@ public class CompressUtils {
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+                if (mContext instanceof BaseActivity) {
+                    ((BaseActivity) mContext).cancelDialog();
+                }
                 int retMsgId = -1;
                 switch (msg.what) {
                     case SUCCESS:
@@ -144,7 +145,6 @@ public class CompressUtils {
                     if (mIsValidity) {
                         mCommands[0] = mCommands[0].replaceFirst("t", "x");
                         String result = ZipUtils.executeCommandGetStream(mCommands[0]);
-                        mDialog.cancel();
                         checkRepetition(result);
                     } else {
                         String results = ZipUtils.executeCommandGetStream(mCommands[0]);
@@ -158,14 +158,11 @@ public class CompressUtils {
                             break;
                         }
                     }
-
-                    mDialog.cancel();
                     mHandler.sendEmptyMessage(ret);
                 }
                 super.run();
             }
         };
-        mDialog = ProgressInfoDialog.getInstance(mContext);
     }
 
     private void checkPassword(String result) {
@@ -215,12 +212,12 @@ public class CompressUtils {
 
     public void start() {
         mThread.start();
-        if (mIsValidity) {
-            mDialog.showDialog(R.raw.decompress);
-            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
-        } else if (mCommands[0].startsWith("7z a")) {
-            mDialog.showDialog(R.raw.compress);
-            mDialog.changeTitle(mContext.getResources().getString(R.string.compress_info));
+        if (mContext instanceof BaseActivity) {
+            if (mCommands[0].startsWith("7z a")) {
+                ((BaseActivity) mContext).showCompressingDialog();
+            } else {
+                ((BaseActivity) mContext).showDeCompressingDialog();
+            }
         }
     }
 

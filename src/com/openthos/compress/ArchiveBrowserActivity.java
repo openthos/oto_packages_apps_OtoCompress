@@ -1,6 +1,5 @@
 package com.openthos.compress;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,13 +17,12 @@ import android.widget.TextView;
 
 import com.hu.p7zip.ZipUtils;
 import com.openthos.compress.bean.CommandLineBean;
-import com.openthos.compress.common.ProgressInfoDialog;
 import com.openthos.compress.common.SingleLineInputDialog;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class ArchiveBrowserActivity extends Activity
+public class ArchiveBrowserActivity extends BaseActivity
         implements ArchiveBrowserContract.IView, View.OnClickListener {
 
     private ImageView mImgBack, mImgForward, mImgHome;
@@ -35,21 +33,18 @@ public class ArchiveBrowserActivity extends Activity
     private CommandLineBean mCmdBean;
     private ArchiveBrowserContract.IPresenter mIPresenter;
     private String mCurrentPath = "/";
+    private String mSrcFilePath, mSrcFileName;
     public static final String SPECIFIC_FILE_NAME = "specific_file_name";
     public static final String PASSWORD = "password";
     private SingleLineInputDialog mPwDialog;
-    private ProgressInfoDialog mPrDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_browser);
-        initView();
-        initListener();
-        initData();
     }
 
-    private void initView() {
+    protected void initView() {
+        setContentView(R.layout.activity_file_browser);
         mImgBack = (ImageView) findViewById(R.id.img_back);
         mImgForward = (ImageView) findViewById(R.id.img_forward);
         mImgHome = (ImageView) findViewById(R.id.img_home);
@@ -65,7 +60,7 @@ public class ArchiveBrowserActivity extends Activity
         mListView = (ListView) findViewById(R.id.list_view);
     }
 
-    private void initListener() {
+    protected void initListener() {
         mImgBack.setOnClickListener(this);
         mImgForward.setOnClickListener(this);
         mImgHome.setOnClickListener(this);
@@ -77,37 +72,45 @@ public class ArchiveBrowserActivity extends Activity
         mEtCurrentPath.setOnKeyListener(getEtOnKeyListener());
     }
 
-    private void initData() {
+    protected void initData() {
         mIPresenter = new ArchiveBrowserPresenter(this, this);
         mCmdBean = new CommandLineBean();
         mCmdBean.setOperation(CommandLineBean.OPERATION_SHOW_LIST);
-        String srcFilePath = getIntent().getData().getPath();
-        int lastIndex = srcFilePath.lastIndexOf("/");
-        mCmdBean.setSrcPath(srcFilePath.substring(0, lastIndex + 1));
-        mCmdBean.setFileName(srcFilePath.substring(lastIndex + 1));
-        startCommand(mCmdBean.toString(), CommandLineBean.OPERATION_SHOW_LIST);
+        String srcFileTotalName = getIntent().getData().getPath();
+        int index = srcFileTotalName.lastIndexOf("/") + 1;
+        mSrcFilePath = srcFileTotalName.substring(0, index);
+        mCmdBean.setSrcPath(mSrcFilePath);
+        mSrcFileName = srcFileTotalName.substring(index);
+        mCmdBean.setFileName(mSrcFileName);
+        startCommand();
     }
 
     @Override
-    public void startCommand(final String command, final String operation) {
+    public void startCommand() {
+        if (CommandLineBean.OPERATION_SHOW_LIST.equals(mCmdBean.getOperation())) {
+            showDeCompressingDialog();
+        } else if (CommandLineBean.OPERATION_COMPRESS.equals(mCmdBean.getOperation())) {
+            showCompressingDialog();
+        }
         new AsyncTask<Void, Void, Void>() {
             String result;
 
             @Override
             protected Void doInBackground(Void... voids) {
-                result = ZipUtils.executeCommandGetStream(command);
+                result = ZipUtils.executeCommandGetStream(mCmdBean.toString());
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                if (operation.equals(CommandLineBean.OPERATION_SHOW_LIST)) {
+                if (CommandLineBean.OPERATION_SHOW_LIST.equals(mCmdBean.getOperation())) {
                     mIPresenter.handleResult(result);
-                } else if (operation.equals(CommandLineBean.OPERATION_COMPRESS)) {
+                } else if (CommandLineBean.OPERATION_COMPRESS.equals(mCmdBean.getOperation())) {
                     mIPresenter.removeTempFile();
                     mIPresenter.clearData();
-                    startCommand(mCmdBean.toString(), CommandLineBean.OPERATION_SHOW_LIST);
+                    mCmdBean.setOperation(CommandLineBean.OPERATION_SHOW_LIST);
+                    startCommand();
                 }
             }
         }.execute();
@@ -210,7 +213,6 @@ public class ArchiveBrowserActivity extends Activity
         String retStr = data.getStringExtra(FileChooseActivity.STRING_RETURN);
         switch (requestCode) {
             case CompressUtils.REQUEST_CODE_DST:
-                showProgressDialog();
                 String filePath;
                 if ("/".equals(mCurrentPath)) {
                     filePath = retStr;
@@ -219,15 +221,13 @@ public class ArchiveBrowserActivity extends Activity
                             "ArchiveBrowserTemp").getAbsolutePath();
                     filePath = mIPresenter.createTempFile(retStr, tempPath, mCurrentPath);
                 }
-                CommandLineBean bean = new CommandLineBean();
-                bean.setOperation(CommandLineBean.OPERATION_COMPRESS);
-                bean.setDestPath(mCmdBean.getSrcPath());
-                bean.setFileName(mCmdBean.getFileName());
-                bean.setDestFileType(mCmdBean.getDestFileType());
+                mCmdBean.setOperation(CommandLineBean.OPERATION_COMPRESS);
+                mCmdBean.setDestPath(mSrcFilePath);
+                mCmdBean.setFileName(mSrcFileName);
                 ArrayList<String> list = new ArrayList<>();
                 list.add(filePath);
-                bean.setSrcFilePaths(list);
-                startCommand(bean.toString(), CommandLineBean.OPERATION_COMPRESS);
+                mCmdBean.setSrcFilePaths(list);
+                startCommand();
                 break;
             default:
                 break;
@@ -271,23 +271,6 @@ public class ArchiveBrowserActivity extends Activity
     }
 
     @Override
-    public void showProgressDialog() {
-        if (mPrDialog == null) {
-            mPrDialog = ProgressInfoDialog.getInstance(this);
-            mPrDialog.showDialog(R.raw.compress);
-        } else {
-            mPrDialog.show();
-        }
-    }
-
-    @Override
-    public void cancelProgressDialog() {
-        if (mPrDialog != null) {
-            mPrDialog.cancel();
-        }
-    }
-
-    @Override
     public void initPwDialog() {
         if (mPwDialog == null) {
             mPwDialog = new SingleLineInputDialog(this);
@@ -303,7 +286,7 @@ public class ArchiveBrowserActivity extends Activity
                 public void onClick(View view) {
                     String pw = mPwDialog.getContent();
                     mCmdBean.setPassword(pw);
-                    startCommand(mCmdBean.toString(), CommandLineBean.OPERATION_SHOW_LIST);
+                    startCommand();
                 }
             });
             mPwDialog.setCanceledOnTouchOutside(false);
@@ -318,13 +301,13 @@ public class ArchiveBrowserActivity extends Activity
     }
 
     @Override
-    public ListView getListView() {
-        return mListView;
+    public void cancelProgressDialog() {
+        cancelDialog();
     }
 
     @Override
-    public String getSavedPath() {
-        return mCurrentPath;
+    public ListView getListView() {
+        return mListView;
     }
 
     @Override

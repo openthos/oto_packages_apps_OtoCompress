@@ -20,12 +20,6 @@ class ArchiveBrowserContract {
 
         ListView getListView();
 
-        void startCommand(final String command,final String operation);
-
-        void showProgressDialog();
-
-        void cancelProgressDialog();
-
         void initPwDialog();
 
         void cancelInputDialog();
@@ -36,7 +30,7 @@ class ArchiveBrowserContract {
 
         void doExtract(Uri srcUri, String specificFile);
 
-        String getSavedPath();
+        void cancelProgressDialog();
     }
 
     interface IPresenter {

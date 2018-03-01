@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Archiver</string>
+    <string name="app_name">Archive Manager</string>
     <string name="compress">Compress</string>
     <string name="decompress">Decompress</string>
     <string name="msg_ret_success">Success</string>

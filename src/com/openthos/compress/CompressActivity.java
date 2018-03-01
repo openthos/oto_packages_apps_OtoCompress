@@ -176,7 +176,7 @@ public class CompressActivity extends BaseActivity {
                     break;
                 case R.id.co_passwd_visible:
                     int pwdType = isChecked ? InputType.TYPE_CLASS_TEXT
-                        : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                            : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
                     mEtPassword.setInputType(pwdType);
                     mEtPassword.selectAll();
                     break;

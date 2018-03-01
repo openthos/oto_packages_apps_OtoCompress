@@ -8,6 +8,8 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.EditText;
 
+import com.openthos.compress.common.ProgressInfoDialog;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -16,13 +18,12 @@ public abstract class BaseActivity extends Activity {
     public String mDestPath;
     public String mDefaultDestination;
     public CompressUtils mUtils;
+    public ProgressInfoDialog mDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mIsUserVersion = "user".equals(Build.TYPE);
-
         initView();
         initData();
         initListener();
@@ -62,7 +63,36 @@ public abstract class BaseActivity extends Activity {
     }
 
     protected abstract void initView();
+
     protected abstract void initData();
+
     protected abstract void initListener();
+
     protected abstract void startCommand();
+
+    public void showCompressingDialog() {
+        if (mDialog == null) {
+            mDialog = ProgressInfoDialog.getInstance(this);
+        }
+        if (!mDialog.isShowing()) {
+            mDialog.showDialog(R.raw.compress);
+            mDialog.changeTitle(getResources().getString(R.string.compress_info));
+        }
+    }
+
+    public void showDeCompressingDialog() {
+        if (mDialog == null) {
+            mDialog = ProgressInfoDialog.getInstance(this);
+        }
+        if (!mDialog.isShowing()) {
+            mDialog.showDialog(R.raw.decompress);
+            mDialog.changeTitle(getResources().getString(R.string.compress_info));
+        }
+    }
+
+    public void cancelDialog() {
+        if (mDialog != null && mDialog.isShowing()) {
+            mDialog.cancel();
+        }
+    }
 }
