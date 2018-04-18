@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.app.Activity;
 import android.content.Intent;

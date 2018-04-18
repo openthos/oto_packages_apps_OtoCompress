@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -16,8 +16,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.hu.p7zip.ZipUtils;
-import com.openthos.compress.bean.CommandLineBean;
-import com.openthos.compress.common.SingleLineInputDialog;
+import org.openthos.compress.bean.CommandLineBean;
+import org.openthos.compress.common.SingleLineInputDialog;
 
 import java.io.File;
 import java.util.ArrayList;

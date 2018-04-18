@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.content.Intent;
 import android.text.InputType;
@@ -16,7 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.openthos.compress.bean.CommandLineBean;
+import org.openthos.compress.bean.CommandLineBean;
 
 import java.io.File;
 import java.util.ArrayList;

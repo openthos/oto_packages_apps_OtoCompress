@@ -1,4 +1,4 @@
-package com.openthos.compress.bean;
+package org.openthos.compress.bean;
 
 /**
  * Created by wm on 17-9-29.

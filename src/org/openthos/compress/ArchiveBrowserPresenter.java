@@ -1,11 +1,11 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.ListView;
 
-import com.openthos.compress.bean.CompressedFileBean;
-import com.openthos.compress.common.CommonUtils;
+import org.openthos.compress.bean.CompressedFileBean;
+import org.openthos.compress.common.CommonUtils;
 
 import java.io.File;
 import java.io.IOException;

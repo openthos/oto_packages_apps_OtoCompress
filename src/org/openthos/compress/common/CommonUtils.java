@@ -1,7 +1,7 @@
-package com.openthos.compress.common;
+package org.openthos.compress.common;
 
 import android.content.Context;
-import com.openthos.compress.R;
+import org.openthos.compress.R;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

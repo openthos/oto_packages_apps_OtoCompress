@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,9 +9,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.openthos.compress.bean.CompressedFileBean;
-import com.openthos.compress.common.CommonUtils;
-import com.openthos.compress.common.OnDoubleClickListener;
+import org.openthos.compress.bean.CompressedFileBean;
+import org.openthos.compress.common.CommonUtils;
+import org.openthos.compress.common.OnDoubleClickListener;
 
 import java.util.ArrayList;
 import java.util.List;

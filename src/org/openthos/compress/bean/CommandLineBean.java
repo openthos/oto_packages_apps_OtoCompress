@@ -1,4 +1,4 @@
-package com.openthos.compress.bean;
+package org.openthos.compress.bean;
 
 import android.text.TextUtils;
 

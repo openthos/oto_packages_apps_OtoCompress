@@ -6,6 +6,6 @@
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    tools:context="com.openthos.compress.BaseActivity">
+    tools:context="org.openthos.compress.BaseActivity">
 
 </RelativeLayout>

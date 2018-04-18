@@ -1,9 +1,9 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.net.Uri;
 import android.widget.ListView;
 
-import com.openthos.compress.bean.CompressedFileBean;
+import org.openthos.compress.bean.CompressedFileBean;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.content.Intent;
 import android.text.InputType;
@@ -12,7 +12,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.openthos.compress.bean.CommandLineBean;
+import org.openthos.compress.bean.CommandLineBean;
 
 public class DecompressActivity extends BaseActivity {
 

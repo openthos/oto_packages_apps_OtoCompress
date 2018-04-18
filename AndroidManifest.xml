@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-    package="com.openthos.compress">
+    package="org.openthos.compress">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE">
@@ -21,14 +21,14 @@
         android:theme="@style/AppTheme">
         <activity android:name=".CompressActivity">
             <intent-filter>
-                <action android:name="com.openthos.compress.compress" />
+                <action android:name="org.openthos.compress.compress" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity android:name=".DecompressActivity">
             <intent-filter>
-                <action android:name="com.openthos.compress.decompress" />
+                <action android:name="org.openthos.compress.decompress" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -36,7 +36,7 @@
         <activity android:name=".FileChooseActivity"/>
         <activity android:name=".ArchiveBrowserActivity">
             <intent-filter>
-                <action android:name="com.openthos.compress.archivebrowser"/>
+                <action android:name="org.openthos.compress.archivebrowser"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

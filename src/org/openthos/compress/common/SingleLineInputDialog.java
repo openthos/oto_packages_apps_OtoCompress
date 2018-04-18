@@ -1,4 +1,4 @@
-package com.openthos.compress.common;
+package org.openthos.compress.common;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.openthos.compress.R;
+import org.openthos.compress.R;
 
 /**
  * Created by MingWang on 2017/10/12.

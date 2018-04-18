@@ -1,4 +1,4 @@
-package com.openthos.compress;
+package org.openthos.compress;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -8,7 +8,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.EditText;
 
-import com.openthos.compress.common.ProgressInfoDialog;
+import org.openthos.compress.common.ProgressInfoDialog;
 
 import java.io.File;
 import java.io.IOException;

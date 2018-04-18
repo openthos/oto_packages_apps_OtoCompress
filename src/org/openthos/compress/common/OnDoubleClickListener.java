@@ -1,4 +1,4 @@
-package com.openthos.compress.common;
+package org.openthos.compress.common;
 
 import android.view.MotionEvent;
 import android.view.View;

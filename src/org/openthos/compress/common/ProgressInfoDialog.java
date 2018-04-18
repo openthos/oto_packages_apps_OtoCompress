@@ -1,4 +1,4 @@
-package com.openthos.compress.common;
+package org.openthos.compress.common;
 
 import android.app.Application;
 import android.app.Dialog;
@@ -10,7 +10,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.openthos.compress.R;
+import org.openthos.compress.R;
 
 
 /**
